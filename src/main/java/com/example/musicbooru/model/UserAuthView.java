@@ -2,6 +2,8 @@ package com.example.musicbooru.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Immutable;
+import org.hibernate.annotations.Subselect;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,24 +12,26 @@ import java.util.Collection;
 import java.util.List;
 
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "_user")
-public class User implements UserDetails {
+@Immutable
+@Subselect("SELECT id, username, password, role FROM _user")
+public class UserAuthView implements UserDetails {
     @Id
-    @GeneratedValue
     private Integer id;
 
-    @Column(unique = true)
+    @Column(name = "username")
     private String username;
 
+    @Column(name = "password")
     private String password;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "role")
     private Role role;
 
+    // UserDetails implementation methods
     @Override
     public String getUsername() {
         return username;
