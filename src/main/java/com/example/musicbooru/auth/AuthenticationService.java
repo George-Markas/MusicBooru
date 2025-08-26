@@ -3,7 +3,6 @@ package com.example.musicbooru.auth;
 import com.example.musicbooru.config.JwtService;
 import com.example.musicbooru.model.Role;
 import com.example.musicbooru.model.User;
-import com.example.musicbooru.model.UserAuthView;
 import com.example.musicbooru.repository.UserRepository;
 import com.example.musicbooru.repository.UserAuthViewRepository;
 import org.springframework.security.authentication.AuthenticationManager;
