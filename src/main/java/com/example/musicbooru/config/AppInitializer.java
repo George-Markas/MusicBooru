@@ -30,12 +30,13 @@ public class AppInitializer implements CommandLineRunner {
     }
 
     public void makeAdmin() {
-        User admin = User.builder()
-                .username(adminUsername)
-                .password(passwordEncoder.encode(adminPassword))
-                .role(Role.ADMIN)
-                .build();
-
-        userRepository.save(admin);
+        if(!userRepository.existsByUsername("admin")) {
+            User admin = User.builder()
+                    .username(adminUsername)
+                    .password(passwordEncoder.encode(adminPassword))
+                    .role(Role.ADMIN)
+                    .build();
+            userRepository.save(admin);
+        }
     }
 }
