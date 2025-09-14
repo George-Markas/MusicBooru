@@ -15,24 +15,4 @@ public class MusicBooruApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(MusicBooruApplication.class, args);
 	}
-
-	private static final HttpMethod[] ALLOWED_METHODS = {
-			HttpMethod.GET,
-			HttpMethod.PUT,
-			HttpMethod.POST,
-			HttpMethod.DELETE
-	};
-
-	@Bean
-	public WebMvcConfigurer corsConfigurer() {
-		return new WebMvcConfigurer() {
-			@Override
-			public void addCorsMappings(@NonNull CorsRegistry registry) {
-				registry.addMapping("/**").allowedMethods(Arrays.stream(ALLOWED_METHODS)
-						.map(HttpMethod::name)
-						.toArray(String[]::new)
-				).allowedOrigins("**");
-			}
-		};
-	}
 }

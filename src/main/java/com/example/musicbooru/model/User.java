@@ -22,7 +22,6 @@ public class User implements UserDetails {
 
     @Column(unique = true)
     private String username;
-
     private String password;
 
     @Enumerated(EnumType.STRING)
