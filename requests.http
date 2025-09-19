@@ -32,13 +32,15 @@ Content-Type: application/json
 }
 
 ### Track upload
-POST http://localhost:8080/api/v1/track-control/upload
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdXRob3JpdGllcyI6WyJBRE1JTiJdLCJzdWIiOiJhZG1pbiIsImlhdCI6MTc1NjE0MDExMCwiZXhwIjoxNzU2MTQxNTUwfQ.Kr4vX-0-uosrfEFEg6wAltCPoG4orJOCn1aYbeStr8U
+POST http://localhost:8080/api/v1/tracks/upload
 Content-Type: multipart/form-data; boundary=boundary
 
 --boundary
-Content-Disposition: form-data; name="file"; filename="song_name.flac"
+Content-Disposition: form-data; name="file"; filename="monday_monday.flac"
 Content-Type: audio/flac
 
-< /absolute/path/to/file.flac
+< /home/antoine/Music/ctracks/The Mamas & The Papas - Greatest Hits_  The Mamas & The Papas/03 - Monday, Monday.flac
 --boundary--
+
+### Get tracks
+GET http://localhost:8080/api/v1/tracks/

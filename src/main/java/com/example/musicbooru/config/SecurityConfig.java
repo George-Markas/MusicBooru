@@ -44,10 +44,10 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(req -> req
-                        .requestMatchers("/api/v1/auth/register").hasAuthority(Role.ADMIN.name())
-                        .requestMatchers("/api/v1/track-control/upload").hasAuthority(Role.ADMIN.name())
-                        .requestMatchers("/api/v1/auth/**").permitAll()
-                        .anyRequest().authenticated()
+                        //.requestMatchers("/api/v1/auth/register").hasAuthority(Role.ADMIN.name())
+                        //.requestMatchers("/api/v1/track-control/upload").hasAuthority(Role.ADMIN.name())
+                        //.requestMatchers("/api/v1/auth/**").permitAll()
+                        .anyRequest().permitAll() //authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)

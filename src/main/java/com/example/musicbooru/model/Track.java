@@ -20,6 +20,8 @@ public class Track {
     @Column(unique = true)
     private String title;
 
+    private String path;
+
     private String artist;
     private String album;
     private String genre;

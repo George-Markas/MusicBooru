@@ -15,6 +15,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TrackService {
@@ -41,6 +43,7 @@ public class TrackService {
                     .album(tag.getFirst(FieldKey.ALBUM))
                     .artist(tag.getFirst(FieldKey.ARTIST))
                     .genre(tag.getFirst(FieldKey.GENRE))
+                    .path(savedFilePath)
                     .build();
         } catch(Exception e) {
             throw new RuntimeException(e);
@@ -48,7 +51,7 @@ public class TrackService {
     }
 
     private String saveAudioFile(MultipartFile file) throws IOException {
-        String filePath1 = "./newTracks/";
+        String filePath1 = "./tracks/";
         Path path = Paths.get(filePath1);
         Files.createDirectories(path);
 
@@ -60,4 +63,13 @@ public class TrackService {
 
         return filePath.toString();
     }
+
+    public Optional<Track> getTrackById(Integer id) {
+        return trackRepository.findById(id);
+    }
+
+    public List<Track> getTracks() {
+        return trackRepository.findAll();
+    }
+
 }
