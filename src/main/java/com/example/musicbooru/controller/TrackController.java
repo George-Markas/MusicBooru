@@ -18,7 +18,7 @@ import java.util.Optional;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("/api/v1/tracks")
+@RequestMapping("/api/track")
 public class TrackController {
     private final TrackService trackService;
 
@@ -55,7 +55,7 @@ public class TrackController {
         UrlResource resource = new UrlResource(Paths.get(path).toUri());
         long contentLength = resource.contentLength();
 
-        // Return full file
+        // Return the whole file
         return ResponseEntity.ok()
                 .header("Accept-Ranges", "bytes")
                 .header("Content-Type", "audio/" + path.substring(path.lastIndexOf('.') + 1))
