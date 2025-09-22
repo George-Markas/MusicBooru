@@ -18,7 +18,7 @@ public class Track {
     private Integer id;
 
     @Column(unique = true)
-    private String path;
+    private String fileName;
     private String title;
     private String artist;
     private String album;

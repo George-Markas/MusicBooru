@@ -2,6 +2,10 @@ package com.example.musicbooru.controller;
 
 import com.example.musicbooru.model.Track;
 import com.example.musicbooru.service.TrackService;
+import org.jaudiotagger.audio.exceptions.CannotReadException;
+import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
+import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
+import org.jaudiotagger.tag.TagException;
 import org.springframework.core.io.UrlResource;
 import org.springframework.core.io.support.ResourceRegion;
 import org.springframework.http.HttpStatus;
@@ -24,8 +28,8 @@ public class TrackController {
     private final TrackService trackService;
 
     @PostMapping("/upload")
-    public ResponseEntity<String> uploadTrack(@RequestPart("file") MultipartFile file) throws IOException {
-        trackService.addTrack(file);
+    public ResponseEntity<String> uploadTrack(@RequestPart("file") MultipartFile file) throws IOException, CannotReadException, TagException, InvalidAudioFrameException, ReadOnlyFileException {
+        trackService.addNewTrack(file);
         return ResponseEntity.ok("Track uploaded.");
     }
 
@@ -33,7 +37,7 @@ public class TrackController {
     public ResponseEntity<Track> getTrack(@PathVariable Integer id) {
         Optional<Track> track = trackService.getTrackById(id);
 
-        if (track.isPresent()) {
+        if(track.isPresent()) {
             return ResponseEntity.ok(track.get());
         }
         return ResponseEntity.notFound().build();
@@ -51,7 +55,7 @@ public class TrackController {
         Optional<Track> track = Optional.ofNullable(trackService.getTrackById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)));
 
-        String path = track.orElseThrow().getPath();
+        String path = track.orElseThrow().getFileName();
 
         UrlResource resource = new UrlResource(Paths.get(path).toUri());
         long contentLength = resource.contentLength();
