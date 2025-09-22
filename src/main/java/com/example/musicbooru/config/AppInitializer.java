@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class AppInitializer implements CommandLineRunner {
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
