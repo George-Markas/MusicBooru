@@ -15,14 +15,15 @@ import lombok.NoArgsConstructor;
 public class Track {
     @Id
     @GeneratedValue
-    private Integer trackId;
+    private Integer id;
 
     @Column(unique = true)
-    private String title;
-
     private String path;
-
+    private String title;
     private String artist;
     private String album;
     private String genre;
+    private String year;
+    private String sampleRate;
+    private boolean isFavorited;
 }

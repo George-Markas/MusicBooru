@@ -27,16 +27,16 @@ public class TrackService {
         this.trackRepository = trackRepository;
     }
 
-    public void saveTrack(MultipartFile file) throws IOException {
-        String savedFilePath = saveAudioFile(file);
-        Track track = extractMetadata(savedFilePath);
+    public void addTrack(MultipartFile file) throws IOException {
+        String filePath = saveAudioFile(file);
+        Track newTrack = extractMetadata(filePath);
 
-        trackRepository.save(track);
+        trackRepository.save(newTrack);
     }
 
-    private Track extractMetadata(String savedFilePath) {
+    private Track extractMetadata(String filePath) {
         try {
-            AudioFile audioFile = AudioFileIO.read(new File(savedFilePath));
+            AudioFile audioFile = AudioFileIO.read(new File(filePath));
             Tag tag = audioFile.getTag();
 
             return Track.builder()
@@ -44,7 +44,9 @@ public class TrackService {
                     .album(tag.getFirst(FieldKey.ALBUM))
                     .artist(tag.getFirst(FieldKey.ARTIST))
                     .genre(tag.getFirst(FieldKey.GENRE))
-                    .path(savedFilePath)
+                    .year(tag.getFirst(FieldKey.YEAR))
+                    .sampleRate(audioFile.getAudioHeader().getSampleRate())
+                    .path(filePath) // Might need tweaking
                     .build();
         } catch(Exception e) {
             throw new RuntimeException(e);
@@ -52,17 +54,17 @@ public class TrackService {
     }
 
     private String saveAudioFile(MultipartFile file) throws IOException {
-        String filePath1 = "./tracks/";
-        Path path = Paths.get(filePath1);
+        String libraryPath = "./tracks/";
+        Path path = Paths.get(libraryPath);
         Files.createDirectories(path);
 
-        // TODO: derive file name from metadata
+        // TODO: rewrite; derive file name from metadata
         String originalName = file.getOriginalFilename();
-        assert originalName != null;
-        Path filePath = path.resolve(originalName);
-        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+        assert originalName != null; // Do not use in production
+        Path fullDestinationPath = path.resolve(originalName);
+        Files.copy(file.getInputStream(), fullDestinationPath, StandardCopyOption.REPLACE_EXISTING);
 
-        return filePath.toString();
+        return fullDestinationPath.toString();
     }
 
     public Optional<Track> getTrackById(Integer id) {
@@ -72,5 +74,4 @@ public class TrackService {
     public List<Track> getTracks() {
         return trackRepository.findAll();
     }
-
 }

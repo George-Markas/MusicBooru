@@ -24,8 +24,8 @@ public class TrackController {
     private final TrackService trackService;
 
     @PostMapping("/upload")
-    public ResponseEntity<String> uploadTrack(@RequestPart("file") MultipartFile audioFile) throws IOException {
-        trackService.saveTrack(audioFile);
+    public ResponseEntity<String> uploadTrack(@RequestPart("file") MultipartFile file) throws IOException {
+        trackService.addTrack(file);
         return ResponseEntity.ok("Track uploaded.");
     }
 
