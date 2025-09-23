@@ -55,7 +55,7 @@ public class TrackController {
         Optional<Track> track = Optional.ofNullable(trackService.getTrackById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)));
 
-        String path = track.orElseThrow().getFileName();
+        String path = "./tracks/" + track.orElseThrow().getFileName();
 
         UrlResource resource = new UrlResource(Paths.get(path).toUri());
         long contentLength = resource.contentLength();
