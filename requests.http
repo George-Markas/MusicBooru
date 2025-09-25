@@ -1,5 +1,5 @@
 ### Admin login
-POST http://localhost:8080/api/auth/authenticate
+POST http://localhost:80/api/auth/authenticate
 Content-Type: application/json
 
 {
@@ -8,7 +8,7 @@ Content-Type: application/json
 }
 
 ### User login
-POST http://localhost:8080/api/auth/authenticate
+POST http://localhost:80/api/auth/authenticate
 Content-Type: application/json
 
 {
@@ -17,7 +17,7 @@ Content-Type: application/json
 }
 
 ### Register user
-POST http://localhost:8080/api/auth/register
+POST http://localhost:80/api/auth/register
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdXRob3JpdGllcyI6WyJBRE1JTiJdLCJzdWIiOiJhZG1pbiIsImlhdCI6MTc1NjMzOTk5MywiZXhwIjoxNzU2MzQxNDMzfQ.J041Tu7t3NLildavgNg4Ywx7IhUyNkVJPs3hkgoXwvw
 Content-Type: application/json
 
@@ -27,7 +27,7 @@ Content-Type: application/json
 }
 
 ### Upload track
-POST http://localhost:8080/api/track/upload
+POST http://localhost:80/api/track/upload
 Content-Type: multipart/form-data; boundary=boundary
 
 --boundary
@@ -37,5 +37,11 @@ Content-Type: audio/flac
 < /path/to/file
 --boundary--
 
+### Delete track
+POST http://localhost:80/api/track/delete/1
+
 ### Get tracks
-GET http://localhost:8080/api/track/
+GET http://localhost:80/api/track/
+
+### Stream track
+GET http://localhost:80/api/track/stream/1

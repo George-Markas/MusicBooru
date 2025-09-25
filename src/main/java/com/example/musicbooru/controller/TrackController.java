@@ -6,9 +6,12 @@ import org.jaudiotagger.audio.exceptions.CannotReadException;
 import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
 import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
 import org.jaudiotagger.tag.TagException;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.core.io.support.ResourceRegion;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,6 +21,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @AllArgsConstructor
@@ -29,7 +33,7 @@ public class TrackController {
 
     @PostMapping("/upload")
     public ResponseEntity<String> uploadTrack(@RequestPart("file") MultipartFile file) throws IOException, CannotReadException, TagException, InvalidAudioFrameException, ReadOnlyFileException {
-        trackService.addNewTrack(file);
+        trackService.addTrack(file);
         return ResponseEntity.ok("Track uploaded.");
     }
 
@@ -43,15 +47,23 @@ public class TrackController {
         return ResponseEntity.notFound().build();
     }
 
+    @PostMapping("/delete/{id}")
+    public ResponseEntity<String> deleteTrack(@PathVariable Integer id) {
+      try {
+          trackService.deleteTrack(id);
+          return ResponseEntity.ok("Track deleted.");
+      } catch (IOException | NoSuchElementException e) {
+          return ResponseEntity.badRequest().build();
+      }
+    }
+
     @GetMapping("/")
     public ResponseEntity<List<Track>> getAllTracks() {
         return ResponseEntity.ok(trackService.getTracks());
     }
 
     @GetMapping("/stream/{id}")
-    public ResponseEntity<ResourceRegion> streamAudio(
-            @PathVariable Integer id) throws IOException {
-
+    public ResponseEntity<ResourceRegion> streamAudio(@PathVariable Integer id) throws IOException {
         Optional<Track> track = Optional.ofNullable(trackService.getTrackById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)));
 
@@ -65,5 +77,13 @@ public class TrackController {
                 .header("Accept-Ranges", "bytes")
                 .header("Content-Type", "audio/" + path.substring(path.lastIndexOf('.') + 1))
                 .body(new ResourceRegion(resource, 0, contentLength));
+    }
+
+    @GetMapping("/art/{id}")
+    public ResponseEntity<Resource> getCoverArt(@PathVariable Integer id) {
+        Resource coverArt = new FileSystemResource("./tracks/covers/" + id + ".jpg");
+        return ResponseEntity.ok()
+                .contentType(MediaType.IMAGE_JPEG)
+                .body(coverArt);
     }
 }
