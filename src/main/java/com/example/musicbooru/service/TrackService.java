@@ -13,15 +13,21 @@ import org.jaudiotagger.tag.TagException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.apache.commons.io.FilenameUtils;
+
+import javax.imageio.ImageIO;
 
 @Service
 public class TrackService {
@@ -32,14 +38,14 @@ public class TrackService {
         this.trackRepository = trackRepository;
     }
 
-    public void addNewTrack(MultipartFile file) throws IOException, CannotReadException, TagException, InvalidAudioFrameException, ReadOnlyFileException {
+    public void addTrack(MultipartFile file) throws IOException, CannotReadException, TagException, InvalidAudioFrameException, ReadOnlyFileException {
         // Create library directory if it does not exist already
-        Path libraryDir = Paths.get("./tracks/");
+        Path libraryDir = Paths.get("./tracks/covers");
         Files.createDirectories(libraryDir);
 
         // Save as temporary file for metadata extraction
         String originalFilename = file.getOriginalFilename(); // The file extension needs to be preserved for Jaudiotagger to work
-        if(originalFilename == null){
+        if(originalFilename == null) {
             throw new IllegalArgumentException("File must have a name");
         }
         String extension = "." + FilenameUtils.getExtension(originalFilename);
@@ -51,8 +57,8 @@ public class TrackService {
         Tag tag = audioFile.getTag();
         String derivedFileName = tag.getFirst(FieldKey.ARTIST) + " - " + tag.getFirst(FieldKey.TITLE) + extension;
 
-        // Finally, move the file to the library directory
-        Files.move(tmpFile, Paths.get(libraryDir.toString(), derivedFileName), StandardCopyOption.REPLACE_EXISTING);
+        // Move the file to the library directory
+        Files.move(tmpFile, Paths.get("./tracks", derivedFileName), StandardCopyOption.REPLACE_EXISTING);
 
         Track newTrack = Track.builder()
                 .fileName(derivedFileName)
@@ -65,6 +71,24 @@ public class TrackService {
                 .build();
 
         trackRepository.save(newTrack);
+
+        // Extract cover art and save it in `./tracks/cover/` using the song's ID as the file name
+        byte[] imageData = tag.getFirstArtwork().getBinaryData(); // NullPointer
+        if(imageData != null) {
+            ByteArrayInputStream bais = new ByteArrayInputStream(imageData);
+            BufferedImage image = ImageIO.read(bais);
+            File outputFile = new File("./tracks/covers/" + newTrack.getId() + ".jpg");
+            ImageIO.write(image, "jpg", outputFile);
+        }
+    }
+
+    public void deleteTrack(Integer id) throws NoSuchElementException, IOException {
+        Track toBeDeleted = trackRepository.findById(id).orElseThrow();
+        Path path = Paths.get("./tracks/", toBeDeleted.getFileName());
+        Path coverPath = Paths.get("./tracks/covers/", toBeDeleted.getId() + ".jpg");
+        Files.delete(path);
+        Files.delete(coverPath);
+        trackRepository.deleteById(id);
     }
 
     public Optional<Track> getTrackById(Integer id) {

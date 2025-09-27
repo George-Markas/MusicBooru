@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MusicBooru</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 2rem;
+            font-weight: 300;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 25px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .album-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .album-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2);
+        }
+
+        .album-cover {
+            width: 100%;
+            height: 200px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+            font-weight: bold;
+        }
+
+        .album-info {
+            padding: 1rem;
+        }
+
+        .album-title {
+            font-size: 1rem;
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .album-artist {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .album-year {
+            color: #999;
+            font-size: 0.8rem;
+        }
+
+        .play-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            font-size: 1.5rem;
+            color: #333;
+        }
+
+        .album-card:hover .play-button {
+            opacity: 1;
+        }
+
+        .audio-player {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            display: none;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .player-info {
+            flex: 1;
+        }
+
+        .player-title {
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+        }
+
+        .player-artist {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .audio-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .favorite-btn {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: #ccc;
+            transition: color 0.3s ease;
+        }
+
+        .favorite-btn.favorited {
+            color: #ff6b6b;
+        }
+
+        .loading {
+            text-align: center;
+            color: white;
+            font-size: 1.2rem;
+            padding: 2rem;
+        }
+
+        .error {
+            text-align: center;
+            color: #ff6b6b;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+
+        /* Color palette for album covers */
+        .color-1 {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+        }
+
+        .color-2 {
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+        }
+
+        .color-3 {
+            background: linear-gradient(135deg, #45b7d1, #96c93d);
+        }
+
+        .color-4 {
+            background: linear-gradient(135deg, #f9ca24, #f0932b);
+        }
+
+        .color-5 {
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+        }
+
+        .color-6 {
+            background: linear-gradient(135deg, #fd79a8, #fdcb6e);
+        }
+
+        .color-7 {
+            background: linear-gradient(135deg, #00b894, #00cec9);
+        }
+
+        .color-8 {
+            background: linear-gradient(135deg, #e17055, #d63031);
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <h1>MusicBooru</h1>
+</div>
+
+<div class="container">
+    <div class="controls">
+        <button class="btn" onclick="loadSongs()">Refresh Library</button>
+        <button class="btn" onclick="toggleFavorites()">Show Favorites</button>
+    </div>
+
+    <div id="loading" class="loading" style="display: none;">
+        Loading your music library...
+    </div>
+
+    <div id="error" class="error" style="display: none;"></div>
+
+    <div id="songGrid" class="grid"></div>
+</div>
+
+<div id="audioPlayer" class="audio-player">
+    <div class="player-info">
+        <div id="playerTitle" class="player-title"></div>
+        <div id="playerArtist" class="player-artist"></div>
+    </div>
+    <div class="audio-controls">
+        <button id="favoriteBtn" class="favorite-btn" onclick="toggleFavorite()">♡</button>
+        <audio id="audio" controls>
+            Your browser does not support the audio element.
+        </audio>
+    </div>
+</div>
+
+<script>
+    let songs = [];
+    let currentSong = null;
+    let showOnlyFavorites = false;
+    const API_BASE = '/api/track';
+
+    // Color classes for album covers
+    const colorClasses = ['color-1', 'color-2', 'color-3', 'color-4', 'color-5', 'color-6', 'color-7', 'color-8'];
+
+    // Load songs from the backend
+    async function loadSongs() {
+        const loadingEl = document.getElementById('loading');
+        const errorEl = document.getElementById('error');
+        const gridEl = document.getElementById('songGrid');
+
+        try {
+            loadingEl.style.display = 'block';
+            errorEl.style.display = 'none';
+            gridEl.innerHTML = '';
+
+            const response = await fetch(`${API_BASE}/`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            songs = await response.json();
+            displaySongs();
+        } catch (error) {
+            console.error('Error loading songs:', error);
+            errorEl.textContent = 'Failed to load songs. Make sure your backend is running.';
+            errorEl.style.display = 'block';
+        } finally {
+            loadingEl.style.display = 'none';
+        }
+    }
+
+    // Display songs in the grid
+    function displaySongs() {
+        const gridEl = document.getElementById('songGrid');
+        const filteredSongs = showOnlyFavorites ? songs.filter(song => song.is_favorited) : songs;
+
+        if (filteredSongs.length === 0) {
+            gridEl.innerHTML = '<div class="loading">No songs found</div>';
+            return;
+        }
+
+        gridEl.innerHTML = filteredSongs.map((song, index) => {
+            const colorClass = colorClasses[index % colorClasses.length];
+            const albumInitial = (song.album || song.title || 'M')[0].toUpperCase();
+
+            return `
+                    <div class="album-card" onclick="playSong(${song.id})">
+                        <div class="album-cover-container">
+                            <img src="/api/track/art/${song.id}"
+                                alt="Album Cover"
+                                class="album-cover"
+                                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                            <div class="album-cover-placeholder ${colorClass}" style="display: none;">
+                                ${albumInitial}
+                            </div>
+                            <button class="play-button">▶</button>
+                        </div>
+                        <div class="album-info">
+                            <div class="album-title" title="${song.title || 'Unknown Title'}">${song.title || 'Unknown Title'}</div>
+                            <div class="album-artist" title="${song.artist || 'Unknown Artist'}">${song.artist || 'Unknown Artist'}</div>
+                            <div class="album-year">${song.year || ''}</div>
+                        </div>
+                    </div>
+                   `;
+        }).join('');
+    }
+
+    // Play a song
+    async function playSong(songId) {
+        const song = songs.find(s => s.id === songId);
+        if (!song) return;
+
+        currentSong = song;
+        const audio = document.getElementById('audio');
+        const playerEl = document.getElementById('audioPlayer');
+        const titleEl = document.getElementById('playerTitle');
+        const artistEl = document.getElementById('playerArtist');
+        const favoriteBtn = document.getElementById('favoriteBtn');
+
+        // Update player info
+        titleEl.textContent = song.title || 'Unknown Title';
+        artistEl.textContent = song.artist || 'Unknown Artist';
+        favoriteBtn.textContent = song.is_favorited ? '♥' : '♡';
+        favoriteBtn.className = song.is_favorited ? 'favorite-btn favorited' : 'favorite-btn';
+
+        // Set audio source and show player
+        audio.src = `${API_BASE}/stream/${songId}`;
+        playerEl.style.display = 'flex';
+
+        // Play the audio
+        try {
+            await audio.play();
+        } catch (error) {
+            console.error('Error playing audio:', error);
+            alert('Error playing audio. Please check if the file exists.');
+        }
+    }
+
+    // Toggle favorites view
+    function toggleFavorites() {
+        showOnlyFavorites = !showOnlyFavorites;
+        const btn = event.target;
+        btn.textContent = showOnlyFavorites ? 'Show All' : 'Show Favorites';
+        displaySongs();
+    }
+
+    // Initialize the app
+    document.addEventListener('DOMContentLoaded', function () {
+        loadSongs();
+    });
+</script>
+</body>
+</html>
