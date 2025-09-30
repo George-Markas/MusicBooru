@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script>
+        // check if authToken exists in sessionStorage
+        if (!sessionStorage.getItem('authToken')) {
+            window.location.replace('login.html');
+        }
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MusicBooru</title>
@@ -296,13 +302,19 @@
             errorEl.style.display = 'none';
             gridEl.innerHTML = '';
 
-            const response = await fetch(`${API_BASE}/`);
+            const response = await fetch(`${API_BASE}/`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${sessionStorage.getItem('authToken')}`,
+                    'Content-Type': 'application/json'
+                }
+            });
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
             songs = await response.json();
-            displaySongs();
+            displayTracks();
         } catch (error) {
             console.error('Error loading songs:', error);
             errorEl.textContent = 'Failed to load songs. Make sure your backend is running.';
@@ -312,8 +324,77 @@
         }
     }
 
-    // Display songs in the grid
-    function displaySongs() {
+    //helper function to fetch cover art from secure endpoint
+    async function getCoverArt(trackID, imgElement) {
+        try {
+            const response = await fetch(`${API_BASE}/art/${trackID}`, {
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${sessionStorage.getItem('authToken')}`}
+            });
+
+            console.log("Function called.")
+
+            if (response.ok) {
+                const blob = await response.blob();
+
+                // Create a temporary URL for the blob
+                const imageUrl = URL.createObjectURL(blob);
+
+                // Set this URL as the image source
+                imgElement.src = imageUrl;
+
+                // Hide placeholder, show image
+                imgElement.style.display = 'block';
+                imgElement.nextElementSibling.style.display = 'none';
+
+                setTimeout(() => URL.revokeObjectURL(imageUrl), 60000)
+            } else {
+                console.log("Could not get cover art: ", response.status);
+            }
+
+        } catch (e) {
+            console.error("Failed to load cover art: ", e);
+        }
+    }
+
+    // // Display songs in the grid
+    // function displaySongs() {
+    //     const gridEl = document.getElementById('songGrid');
+    //     const filteredSongs = showOnlyFavorites ? songs.filter(song => song.is_favorited) : songs;
+    //
+    //     if (filteredSongs.length === 0) {
+    //         gridEl.innerHTML = '<div class="loading">No songs found</div>';
+    //         return;
+    //     }
+    //
+    //     gridEl.innerHTML = filteredSongs.map((song, index) => {
+    //         const colorClass = colorClasses[index % colorClasses.length];
+    //         const albumInitial = (song.album || song.title || 'M')[0].toUpperCase();
+    //
+    //         return `
+    //                 <div class="album-card" onclick="playSong(${song.id})">
+    //                     <div class="album-cover-container">
+    //                         <img src="/api/track/art/${song.id}"
+    //                             alt="Album Cover"
+    //                             class="album-cover"
+    //                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+    //                         <div class="album-cover-placeholder ${colorClass}" style="display: none;">
+    //                             ${albumInitial}
+    //                         </div>
+    //                         <button class="play-button">▶</button>
+    //                     </div>
+    //                     <div class="album-info">
+    //                         <div class="album-title" title="${song.title || 'Unknown Title'}">${song.title || 'Unknown Title'}</div>
+    //                         <div class="album-artist" title="${song.artist || 'Unknown Artist'}">${song.artist || 'Unknown Artist'}</div>
+    //                         <div class="album-year">${song.year || ''}</div>
+    //                     </div>
+    //                 </div>
+    //                `;
+    //     }).join('');
+    // }
+
+    // Altered track display function
+    function displayTracks() {
         const gridEl = document.getElementById('songGrid');
         const filteredSongs = showOnlyFavorites ? songs.filter(song => song.is_favorited) : songs;
 
@@ -322,38 +403,74 @@
             return;
         }
 
-        gridEl.innerHTML = filteredSongs.map((song, index) => {
+        // Insert HTML
+        document.getElementById('songGrid').innerHTML = songs.map((song, index) => {
+
             const colorClass = colorClasses[index % colorClasses.length];
             const albumInitial = (song.album || song.title || 'M')[0].toUpperCase();
 
-            return `
-                    <div class="album-card" onclick="playSong(${song.id})">
-                        <div class="album-cover-container">
-                            <img src="/api/track/art/${song.id}"
-                                alt="Album Cover"
-                                class="album-cover"
-                                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
-                            <div class="album-cover-placeholder ${colorClass}" style="display: none;">
-                                ${albumInitial}
-                            </div>
-                            <button class="play-button">▶</button>
-                        </div>
-                        <div class="album-info">
-                            <div class="album-title" title="${song.title || 'Unknown Title'}">${song.title || 'Unknown Title'}</div>
-                            <div class="album-artist" title="${song.artist || 'Unknown Artist'}">${song.artist || 'Unknown Artist'}</div>
-                            <div class="album-year">${song.year || ''}</div>
-                        </div>
+            return `<div class="album-card" onclick="playSong(${song.id})">
+                <div id="track-cover" class="album-cover-container">
+                    <!-- Start with placeholder visible -->
+                    <img data-song-id="${song.id}"
+                         class="album-cover"
+                         alt="Album Cover"
+                         style="display: none;" />
+                    <div class="album-cover-placeholder ${colorClass}" style="display: none;">
+                         ${albumInitial}
                     </div>
-                   `;
+                    <button class="play-button">▶</button>
+                </div>
+                <div class="album-info">
+                    <div class="album-title" title="${song.title || 'Unknown Title'}">${song.title || 'Unknown Title'}</div>
+                    <div class="album-artist" title="${song.artist || 'Unknown Artist'}">${song.artist || 'Unknown Artist'}</div>
+                    <div class="album-year">${song.year || ''}</div>
+                </div>
+            </div>
+        `
         }).join('');
+
+        // Load all images with authentication
+        document.querySelectorAll('img[data-song-id]').forEach(img => {
+            const songId = img.getAttribute('data-song-id');
+            getCoverArt(songId, img);
+        });
     }
 
-    // Play a song
-    async function playSong(songId) {
-        const song = songs.find(s => s.id === songId);
-        if (!song) return;
 
-        currentSong = song;
+    // Play a song
+    async function playSong(trackID) {
+        // const track = songs.find(s => s.id === songId);
+        // get track stream
+        const track = await fetch(`${API_BASE}/stream/${trackID}`,
+            {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${sessionStorage.getItem('authToken')}`,
+                    'Content-Type' : 'audio'
+                }
+            }
+        )
+
+        // get track data from track/{id} endpoint
+        const trackDataResponse = await fetch(`${API_BASE}/${trackID}`,
+            {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${sessionStorage.getItem('authToken')}`,
+                    'Content-Type' : 'application/json'
+                }
+            }
+        )
+
+        const trackData = await trackDataResponse.json();
+
+        if (!track) {
+            console.log("Unable to get track for streaming", track.status)
+            return;
+        }
+
+        currentSong = track;
         const audio = document.getElementById('audio');
         const playerEl = document.getElementById('audioPlayer');
         const titleEl = document.getElementById('playerTitle');
@@ -361,13 +478,15 @@
         const favoriteBtn = document.getElementById('favoriteBtn');
 
         // Update player info
-        titleEl.textContent = song.title || 'Unknown Title';
-        artistEl.textContent = song.artist || 'Unknown Artist';
-        favoriteBtn.textContent = song.is_favorited ? '♥' : '♡';
-        favoriteBtn.className = song.is_favorited ? 'favorite-btn favorited' : 'favorite-btn';
+        console.log(trackData.title);
+        console.log(trackData.body);
+        titleEl.textContent = trackData.title || 'Unknown Title';
+        artistEl.textContent = trackData.artist || 'Unknown Artist';
+        favoriteBtn.textContent = trackData.is_favorited ? '♥' : '♡';
+        favoriteBtn.className = trackData.is_favorited ? 'favorite-btn favorited' : 'favorite-btn';
 
         // Set audio source and show player
-        audio.src = `${API_BASE}/stream/${songId}`;
+        audio.src = `${API_BASE}/stream/${trackID}`;
         playerEl.style.display = 'flex';
 
         // Play the audio
@@ -384,7 +503,7 @@
         showOnlyFavorites = !showOnlyFavorites;
         const btn = event.target;
         btn.textContent = showOnlyFavorites ? 'Show All' : 'Show Favorites';
-        displaySongs();
+        displayTracks();
     }
 
     // Initialize the app

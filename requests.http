@@ -12,29 +12,30 @@ POST http://localhost:80/api/auth/authenticate
 Content-Type: application/json
 
 {
-  "username": "userguy",
-  "password": "1234"
+  "username": "User",
+  "password": "12345"
 }
 
 ### Register user
 POST http://localhost:80/api/auth/register
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdXRob3JpdGllcyI6WyJBRE1JTiJdLCJzdWIiOiJhZG1pbiIsImlhdCI6MTc1NjMzOTk5MywiZXhwIjoxNzU2MzQxNDMzfQ.J041Tu7t3NLildavgNg4Ywx7IhUyNkVJPs3hkgoXwvw
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdXRob3JpdGllcyI6WyJBRE1JTiJdLCJzdWIiOiJhZG1pbiIsImlhdCI6MTc1OTIzODMwOCwiZXhwIjoxNzU5MjM5NzQ4fQ.OzrcfAsYE48Ato43G0SB56V2c93vPPtHtvNvg9ilweA
 Content-Type: application/json
 
 {
-  "username": "userguy",
-  "password": "1234"
+  "username": "User",
+  "password": "12345"
 }
 
 ### Upload track
 POST http://localhost:80/api/track/upload
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdXRob3JpdGllcyI6WyJBRE1JTiJdLCJzdWIiOiJhZG1pbiIsImlhdCI6MTc1OTI0MDUyOCwiZXhwIjoxNzU5MjQxOTY4fQ.rGRQiEOF4VA5uWKI5IIFAgBHxUzSrvkK1JZ7KWFx1Xo
 Content-Type: multipart/form-data; boundary=boundary
 
 --boundary
 Content-Disposition: form-data; name="file"; filename="test.flac"
 Content-Type: audio/flac
 
-< /path/to/file
+< /home/antoine/Music/ctracks/The Mamas & The Papas - Greatest Hits_  The Mamas & The Papas/05 - Do You Wanna Dance.flac
 --boundary--
 
 ### Delete track
@@ -42,6 +43,8 @@ POST http://localhost:80/api/track/delete/1
 
 ### Get tracks
 GET http://localhost:80/api/track/
+Authorization: eyJhbGciOiJIUzI1NiJ9.eyJhdXRob3JpdGllcyI6WyJBRE1JTiJdLCJzdWIiOiJhZG1pbiIsImlhdCI6MTc1OTEzMzEyNCwiZXhwIjoxNzU5MTM0NTY0fQ.b8c40wzsUP0eG6PLZW44xwkbbTRkNDG3rzmg7kNaEDc
 
 ### Stream track
-GET http://localhost:80/api/track/stream/1
+GET http://localhost:80/api/track/1/
+Authorization: eyJhbGciOiJIUzI1NiJ9.eyJhdXRob3JpdGllcyI6WyJBRE1JTiJdLCJzdWIiOiJhZG1pbiIsImlhdCI6MTc1OTEzNDA1NSwiZXhwIjoxNzU5MTM1NDk1fQ.3qlB-CYF8lGHuX9nCxzRqMDUHYvrfPaWH5Q-vwXWBqc

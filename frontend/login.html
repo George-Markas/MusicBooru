@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+<body>
+<form id="loginForm">
+    <div><label> User Name : <input type="text" id="username" name="username"/> </label></div>
+    <div><label> Password: <input type="password" id="password" name="password"/> </label></div>
+    <div><input type="submit" value="Login"/></div>
+</form>
+
+<!-- Display areas -->
+<div id="messageArea"></div>
+<div id="userInfo"></div>
+
+<script src="auth.js"></script>
+
+<script>
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+        e.preventDefault(); // Prevent default form submission
+
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const messageArea = document.getElementById('messageArea');
+        const userInfo = document.getElementById('userInfo');
+
+        // Show loading message
+        messageArea.innerHTML = 'Logging in...';
+
+        // Call to auth function
+        const result = await login(username, password);
+
+        if (result.success) {
+            messageArea.innerHTML = 'Login successful!';
+            window.location.replace('index.html')
+        } else {
+            messageArea.innerHTML = `Error: ${result.error}`;
+            userInfo.innerHTML = ''; // Clear user info on error
+        }
+    });
+</script>
+</body>
+</html>
