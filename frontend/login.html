@@ -204,7 +204,7 @@
             window.location.replace('index.html')
         } else {
             messageArea.className = 'show error';
-            messageArea.innerHTML = `Error: ${result.error}`;
+            messageArea.innerHTML = `${result.error}`;
             userInfo.innerHTML = ''; // Clear user info on error
         }
     });
