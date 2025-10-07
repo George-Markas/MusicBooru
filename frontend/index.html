@@ -214,39 +214,6 @@
             border-radius: 8px;
             margin-bottom: 2rem;
         }
-
-        /* Color palette for album covers */
-        .color-1 {
-            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
-        }
-
-        .color-2 {
-            background: linear-gradient(135deg, #4ecdc4, #44a08d);
-        }
-
-        .color-3 {
-            background: linear-gradient(135deg, #45b7d1, #96c93d);
-        }
-
-        .color-4 {
-            background: linear-gradient(135deg, #f9ca24, #f0932b);
-        }
-
-        .color-5 {
-            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
-        }
-
-        .color-6 {
-            background: linear-gradient(135deg, #fd79a8, #fdcb6e);
-        }
-
-        .color-7 {
-            background: linear-gradient(135deg, #00b894, #00cec9);
-        }
-
-        .color-8 {
-            background: linear-gradient(135deg, #e17055, #d63031);
-        }
     </style>
 </head>
 <body>
@@ -256,9 +223,9 @@
 
 <div class="container">
     <div class="controls">
-        <button class="btn" onclick="loadSongs()">Refresh Library</button>
+        <button class="btn" onclick="loadSongs()">Refresh</button>
         <button class="btn" onclick="toggleFavorites()">Show Favorites</button>
-        <button class="btn" onclick="document.getElementById('fileInput').click()">Upload Song</button>
+        <button class="btn" onclick="document.getElementById('fileInput').click()">Upload</button>
         <input type="file" id="fileInput" accept="audio/*" multiple style="display: none;" onchange="uploadSong(event)">
     </div>
 
