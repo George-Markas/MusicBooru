@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <script>
-        // check if authToken exists in sessionStorage
+        // Check if authToken exists in sessionStorage
         if (!sessionStorage.getItem('authToken')) {
             window.location.replace('login.html');
         }
@@ -324,7 +324,7 @@
         }
     }
 
-    //helper function to fetch cover art from secure endpoint
+    // Helper function to fetch cover art from secure endpoint
     async function getCoverArt(trackID, imgElement) {
         try {
             const response = await fetch(`${API_BASE}/art/${trackID}`, {
@@ -452,7 +452,7 @@
             }
         )
 
-        // get track data from track/{id} endpoint
+        // Get track data from track/{id} endpoint
         const trackDataResponse = await fetch(`${API_BASE}/${trackID}`,
             {
                 method: 'GET',

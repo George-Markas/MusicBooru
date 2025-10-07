@@ -90,6 +90,8 @@ async function login(username, password) {
                     return { success: false, error: 'Invalid username or password' };
                 case 429:
                     return { success: false, error: 'Too many attempts. Please wait.' };
+                case 502:
+                    return { success: false, error: 'Bad gateway, is the backend running?.' };
                 default:
                     return { success: false, error: 'Login failed. Please try again.' };
             }
