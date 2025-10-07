@@ -45,13 +45,16 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(req -> req
-                        //.requestMatchers("/api/auth/register").hasAuthority(Role.ADMIN.name())
-                        //.requestMatchers("/api/track/upload").hasAuthority(Role.ADMIN.name())
-                        //.requestMatchers("/api/auth/**").permitAll()
-                        //.anyRequest().authenticated()
+                                .requestMatchers("/api/auth/register").hasAuthority(Role.ADMIN.name())
+                                .requestMatchers("/api/track/upload").hasAuthority(Role.ADMIN.name())
+                                .requestMatchers("/api/track/delete").hasAuthority(Role.ADMIN.name())
+                                .requestMatchers("/api/track/art/**").permitAll()
+                                .requestMatchers("/api/track/**").permitAll()
+                                .requestMatchers("/api/auth/authenticate").permitAll()
+                                .anyRequest().authenticated()
 
                         // Temporary; for development
-                        .anyRequest().permitAll()
+                        // .anyRequest().permitAll()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
