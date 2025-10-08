@@ -3,13 +3,13 @@
 <head>
     <script>
         // Check if authToken exists in sessionStorage
-        if (!sessionStorage.getItem('authToken')) {
+        if(!sessionStorage.getItem('authToken')) {
             window.location.replace('login.html');
         }
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MusicBooru</title>
+    <title>MusicBooru (alpha)</title>
     <style>
         * {
             margin: 0;
@@ -42,7 +42,7 @@
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 0 2rem;
+            padding: 0 2rem 120px 2rem;
         }
 
         .controls {
@@ -92,7 +92,18 @@
         .album-cover {
             width: 100%;
             height: 200px;
+            object-fit: cover;
+        }
+
+        .album-cover-container {
             position: relative;
+            width: 100%;
+            height: 200px;
+        }
+
+        .album-cover-placeholder {
+            width: 100%;
+            height: 200px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -159,11 +170,72 @@
             right: 0;
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
-            padding: 1rem;
+            padding: 1.5rem;
             border-top: 1px solid rgba(0, 0, 0, 0.1);
             display: none;
+            flex-direction: column;
+            gap: 1rem;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .player-top {
+            display: flex;
             align-items: center;
             gap: 1rem;
+        }
+
+        .equalizer-container {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 3px;
+            padding: 5px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+        }
+
+        .equalizer-bar {
+            flex: 1;
+            background: white;
+            border-radius: 2px;
+            animation: equalize 0.8s ease-in-out infinite;
+            min-height: 10%;
+        }
+
+        .equalizer-bar:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .equalizer-bar:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        .equalizer-bar:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+
+        .equalizer-bar:nth-child(4) {
+            animation-delay: 0.3s;
+        }
+
+        .equalizer-bar:nth-child(5) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes equalize {
+            0%, 100% {
+                height: 20%;
+            }
+            50% {
+                height: 80%;
+            }
+        }
+
+        .equalizer-container.paused .equalizer-bar {
+            animation: none;
+            height: 10%
         }
 
         .player-info {
@@ -173,6 +245,7 @@
         .player-title {
             font-weight: bold;
             margin-bottom: 0.25rem;
+            font-size: 1.1rem;
         }
 
         .player-artist {
@@ -180,23 +253,118 @@
             font-size: 0.9rem;
         }
 
-        .audio-controls {
+        .player-controls {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 1rem;
         }
 
-        .favorite-btn {
+        .control-btn {
             background: none;
             border: none;
-            font-size: 1.2rem;
+            font-size: 1.8rem;
             cursor: pointer;
-            color: #ccc;
-            transition: color 0.3s ease;
+            color: #667eea;
+            transition: all 0.2s ease;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
         }
 
-        .favorite-btn.favorited {
-            color: #ff6b6b;
+        .control-btn:hover {
+            background: rgba(102, 126, 234, 0.1);
+            transform: scale(1.1);
+        }
+
+        .control-btn:active {
+            transform: scale(0.95);
+        }
+
+        .control-btn.play-pause {
+            font-size: 2.2rem;
+            width: 55px;
+            height: 55px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .control-btn.play-pause:hover {
+            background: linear-gradient(135deg, #5568d3 0%, #653a8b 100%);
+        }
+
+        /*.favorite-btn {*/
+        /*    background: none;*/
+        /*    border: none;*/
+        /*    font-size: 1.5rem;*/
+        /*    cursor: pointer;*/
+        /*    color: #ccc;*/
+        /*    transition: all 0.2s ease;*/
+        /*}*/
+
+        /*.favorite-btn:hover {*/
+        /*    transform: scale(1.2);*/
+        /*}*/
+
+        /*.favorite-btn.favorited {*/
+        /*    color: #ff6b6b;*/
+        /*}*/
+
+        .progress-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            width: 100%;
+        }
+
+        .time-display {
+            font-size: 0.85rem;
+            color: #666;
+            min-width: 45px;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar:hover {
+            height: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 3px;
+            width: 0;
+            transition: width 0.1s linear;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 12px;
+            height: 12px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .progress-bar:hover .progress-fill::after {
+            opacity: 1;
         }
 
         .loading {
@@ -214,6 +382,10 @@
             border-radius: 8px;
             margin-bottom: 2rem;
         }
+
+        audio {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -224,7 +396,7 @@
 <div class="container">
     <div class="controls">
         <button class="btn" onclick="loadSongs()">Refresh</button>
-        <button class="btn" onclick="toggleFavorites()">Show Favorites</button>
+        <!--        <button class="btn" onclick="toggleFavorites()">Show Favorites</button>-->
         <button class="btn" onclick="document.getElementById('fileInput').click()">Upload</button>
         <input type="file" id="fileInput" accept="audio/*" multiple style="display: none;" onchange="uploadSong(event)">
     </div>
@@ -239,28 +411,117 @@
 </div>
 
 <div id="audioPlayer" class="audio-player">
-    <div class="player-info">
-        <div id="playerTitle" class="player-title"></div>
-        <div id="playerArtist" class="player-artist"></div>
+    <div class="player-top">
+        <div class="equalizer-container" id="equalizer">
+            <div class="equalizer-bar"></div>
+            <div class="equalizer-bar"></div>
+            <div class="equalizer-bar"></div>
+            <div class="equalizer-bar"></div>
+            <div class="equalizer-bar"></div>
+        </div>
+        <div class="player-info">
+            <div id="playerTitle" class="player-title"></div>
+            <div id="playerArtist" class="player-artist"></div>
+        </div>
+        <!--        <button id="favoriteBtn" class="favorite-btn" onclick="toggleFavorite()">♡</button>-->
     </div>
-    <div class="audio-controls">
-        <button id="favoriteBtn" class="favorite-btn" onclick="toggleFavorite()">♡</button>
-        <audio id="audio" controls>
-            Your browser does not support the audio element.
-        </audio>
+
+    <div class="progress-container">
+        <span id="currentTime" class="time-display">0:00</span>
+        <div class="progress-bar" id="progressBar" onclick="seekAudio(event)">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <span id="duration" class="time-display">0:00</span>
     </div>
+
+    <div class="player-controls">
+        <button class="control-btn" onclick="playPrevious()">⏮</button>
+        <button class="control-btn play-pause" id="playPauseBtn" onclick="togglePlayPause()">▶</button>
+        <button class="control-btn" onclick="playNext()">⏭</button>
+    </div>
+
+    <audio id="audio" controls>
+        Your browser does not support the audio element.
+    </audio>
 </div>
 
 <script>
     let songs = [];
     let currentSong = null;
+    let currentSongIndex = -1;
     let showOnlyFavorites = false;
     const API_BASE = '/api/track';
 
-    // Color classes for album covers
     const colorClasses = ['color-1', 'color-2', 'color-3', 'color-4', 'color-5', 'color-6', 'color-7', 'color-8'];
 
-    // Load songs from the backend
+    // Format time in mm:ss
+    function formatTime(seconds) {
+        if(isNaN(seconds)) return '0:00';
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    // Update progress bar
+    function updateProgress() {
+        const audio = document.getElementById('audio');
+        const progressFill = document.getElementById('progressFill');
+        const currentTimeEl = document.getElementById('currentTime');
+        const durationEl = document.getElementById('duration');
+
+        if(audio.duration) {
+            const progress = (audio.currentTime / audio.duration) * 100;
+            progressFill.style.width = progress + '%';
+            currentTimeEl.textContent = formatTime(audio.currentTime);
+            durationEl.textContent = formatTime(audio.duration);
+        }
+    }
+
+    // Seek audio
+    function seekAudio(event) {
+        const audio = document.getElementById('audio');
+        const progressBar = document.getElementById('progressBar');
+        const rect = progressBar.getBoundingClientRect();
+        const percent = (event.clientX - rect.left) / rect.width;
+        audio.currentTime = percent * audio.duration;
+    }
+
+    // Toggle play/pause
+    function togglePlayPause() {
+        const audio = document.getElementById('audio');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+
+        if(audio.paused) {
+            audio.play();
+            document.getElementById('equalizer').classList.remove('paused');
+            playPauseBtn.textContent = '⏸';
+        } else {
+            audio.pause();
+            document.getElementById('equalizer').classList.add('paused');
+            playPauseBtn.textContent = '▶';
+        }
+    }
+
+    // Play next song
+    function playNext() {
+        const filteredSongs = showOnlyFavorites ? songs.filter(song => song.is_favorited) : songs;
+        if(filteredSongs.length === 0) return;
+
+        currentSongIndex = (currentSongIndex + 1) % filteredSongs.length;
+        playSong(filteredSongs[currentSongIndex].id);
+        document.getElementById('equalizer').classList.remove('paused');
+    }
+
+    // Play previous song
+    function playPrevious() {
+        const filteredSongs = showOnlyFavorites ? songs.filter(song => song.is_favorited) : songs;
+        if(filteredSongs.length === 0) return;
+
+        currentSongIndex = (currentSongIndex - 1 + filteredSongs.length) % filteredSongs.length;
+        playSong(filteredSongs[currentSongIndex].id);
+        document.getElementById('equalizer').classList.remove('paused');
+    }
+
     async function loadSongs() {
         const loadingEl = document.getElementById('loading');
         const errorEl = document.getElementById('error');
@@ -278,13 +539,14 @@
                     'Content-Type': 'application/json'
                 }
             });
-            if (!response.ok) {
+
+            if(!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
             songs = await response.json();
             displayTracks();
-        } catch (error) {
+        } catch(error) {
             console.error('Error loading songs:', error);
             errorEl.textContent = 'Failed to load songs. Make sure your backend is running.';
             errorEl.style.display = 'block';
@@ -293,99 +555,46 @@
         }
     }
 
-    // Helper function to fetch cover art from secure endpoint
     async function getCoverArt(trackID, imgElement) {
         try {
             const response = await fetch(`${API_BASE}/art/${trackID}`, {
                 method: 'GET',
-                headers: { 'Authorization': `Bearer ${sessionStorage.getItem('authToken')}`}
+                headers: {'Authorization': `Bearer ${sessionStorage.getItem('authToken')}`}
             });
 
-            console.log("Function called.")
-
-            if (response.ok) {
+            if(response.ok) {
                 const blob = await response.blob();
-
-                // Create a temporary URL for the blob
                 const imageUrl = URL.createObjectURL(blob);
-
-                // Set this URL as the image source
                 imgElement.src = imageUrl;
-
-                // Hide placeholder, show image
                 imgElement.style.display = 'block';
                 imgElement.nextElementSibling.style.display = 'none';
-
-                setTimeout(() => URL.revokeObjectURL(imageUrl), 60000)
-            } else {
-                console.log("Could not get cover art: ", response.status);
+                setTimeout(() => URL.revokeObjectURL(imageUrl), 60000);
             }
-
-        } catch (e) {
+        } catch(e) {
             console.error("Failed to load cover art: ", e);
         }
     }
 
-    // // Display songs in the grid
-    // function displaySongs() {
-    //     const gridEl = document.getElementById('songGrid');
-    //     const filteredSongs = showOnlyFavorites ? songs.filter(song => song.is_favorited) : songs;
-    //
-    //     if (filteredSongs.length === 0) {
-    //         gridEl.innerHTML = '<div class="loading">No songs found</div>';
-    //         return;
-    //     }
-    //
-    //     gridEl.innerHTML = filteredSongs.map((song, index) => {
-    //         const colorClass = colorClasses[index % colorClasses.length];
-    //         const albumInitial = (song.album || song.title || 'M')[0].toUpperCase();
-    //
-    //         return `
-    //                 <div class="album-card" onclick="playSong(${song.id})">
-    //                     <div class="album-cover-container">
-    //                         <img src="/api/track/art/${song.id}"
-    //                             alt="Album Cover"
-    //                             class="album-cover"
-    //                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
-    //                         <div class="album-cover-placeholder ${colorClass}" style="display: none;">
-    //                             ${albumInitial}
-    //                         </div>
-    //                         <button class="play-button">▶</button>
-    //                     </div>
-    //                     <div class="album-info">
-    //                         <div class="album-title" title="${song.title || 'Unknown Title'}">${song.title || 'Unknown Title'}</div>
-    //                         <div class="album-artist" title="${song.artist || 'Unknown Artist'}">${song.artist || 'Unknown Artist'}</div>
-    //                         <div class="album-year">${song.year || ''}</div>
-    //                     </div>
-    //                 </div>
-    //                `;
-    //     }).join('');
-    // }
-
-    // Altered track display function
     function displayTracks() {
         const gridEl = document.getElementById('songGrid');
         const filteredSongs = showOnlyFavorites ? songs.filter(song => song.is_favorited) : songs;
 
-        if (filteredSongs.length === 0) {
+        if(filteredSongs.length === 0) {
             gridEl.innerHTML = '<div class="loading">No songs found</div>';
             return;
         }
 
-        // Insert HTML
-        document.getElementById('songGrid').innerHTML = songs.map((song, index) => {
-
+        gridEl.innerHTML = filteredSongs.map((song, index) => {
             const colorClass = colorClasses[index % colorClasses.length];
             const albumInitial = (song.album || song.title || 'M')[0].toUpperCase();
 
             return `<div class="album-card" onclick="playSong(${song.id})">
-                <div id="track-cover" class="album-cover-container">
-                    <!-- Start with placeholder visible -->
+                <div class="album-cover-container">
                     <img data-song-id="${song.id}"
                          class="album-cover"
                          alt="Album Cover"
                          style="display: none;" />
-                    <div class="album-cover-placeholder ${colorClass}" style="display: none;">
+                    <div class="album-cover-placeholder ${colorClass}">
                          ${albumInitial}
                     </div>
                     <button class="play-button">▶</button>
@@ -395,89 +604,78 @@
                     <div class="album-artist" title="${song.artist || 'Unknown Artist'}">${song.artist || 'Unknown Artist'}</div>
                     <div class="album-year">${song.year || ''}</div>
                 </div>
-            </div>
-        `
+            </div>`;
         }).join('');
 
-        // Load all images with authentication
         document.querySelectorAll('img[data-song-id]').forEach(img => {
             const songId = img.getAttribute('data-song-id');
             getCoverArt(songId, img);
         });
     }
 
-
-    // Play a song
     async function playSong(trackID) {
-        // const track = songs.find(s => s.id === songId);
-        // get track stream
-        const track = await fetch(`${API_BASE}/stream/${trackID}`,
-            {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${sessionStorage.getItem('authToken')}`,
-                    'Content-Type' : 'audio'
-                }
+        const track = await fetch(`${API_BASE}/stream/${trackID}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${sessionStorage.getItem('authToken')}`,
+                'Content-Type': 'audio'
             }
-        )
+        });
 
-        // Get track data from track/{id} endpoint
-        const trackDataResponse = await fetch(`${API_BASE}/${trackID}`,
-            {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${sessionStorage.getItem('authToken')}`,
-                    'Content-Type' : 'application/json'
-                }
+        const trackDataResponse = await fetch(`${API_BASE}/${trackID}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${sessionStorage.getItem('authToken')}`,
+                'Content-Type': 'application/json'
             }
-        )
+        });
 
         const trackData = await trackDataResponse.json();
 
-        if (!track) {
-            console.log("Unable to get track for streaming", track.status)
+        if(!track) {
+            console.log("Unable to get track for streaming", track.status);
             return;
         }
 
-        currentSong = track;
+        currentSong = trackData;
+
+        // Find current song index
+        const filteredSongs = showOnlyFavorites ? songs.filter(song => song.is_favorited) : songs;
+        currentSongIndex = filteredSongs.findIndex(s => s.id === trackID);
+
         const audio = document.getElementById('audio');
         const playerEl = document.getElementById('audioPlayer');
         const titleEl = document.getElementById('playerTitle');
         const artistEl = document.getElementById('playerArtist');
-        const favoriteBtn = document.getElementById('favoriteBtn');
+        // const favoriteBtn = document.getElementById('favoriteBtn');
+        const playPauseBtn = document.getElementById('playPauseBtn');
 
-        // Update player info
-        console.log(trackData.title);
-        console.log(trackData.body);
         titleEl.textContent = trackData.title || 'Unknown Title';
         artistEl.textContent = trackData.artist || 'Unknown Artist';
-        favoriteBtn.textContent = trackData.is_favorited ? '♥' : '♡';
-        favoriteBtn.className = trackData.is_favorited ? 'favorite-btn favorited' : 'favorite-btn';
 
-        // Set audio source and show player
         audio.src = `${API_BASE}/stream/${trackID}`;
         playerEl.style.display = 'flex';
 
-        // Play the audio
         try {
             await audio.play();
-        } catch (error) {
+            document.getElementById('equalizer').classList.remove('paused');
+            playPauseBtn.textContent = '⏸';
+        } catch(error) {
             console.error('Error playing audio:', error);
             alert('Error playing audio. Please check if the file exists.');
         }
     }
 
-    // Toggle favorites view
-    function toggleFavorites() {
-        showOnlyFavorites = !showOnlyFavorites;
-        const btn = event.target;
-        btn.textContent = showOnlyFavorites ? 'Show All' : 'Show Favorites';
-        displayTracks();
-    }
+    // function toggleFavorites() {
+    //     showOnlyFavorites = !showOnlyFavorites;
+    //     const btn = event.target;
+    //     btn.textContent = showOnlyFavorites ? 'Show All' : 'Show Favorites';
+    //     displayTracks();
+    // }
 
     async function uploadSong(event) {
         const files = Array.from(event.target.files);
-        if (files.length === 0) return;
+        if(files.length === 0) return;
 
         const loadingEl = document.getElementById('loading');
         const errorEl = document.getElementById('error');
@@ -491,8 +689,7 @@
             let failCount = 0;
             const errors = [];
 
-            // Upload files sequentially
-            for (let i = 0; i < files.length; i++) {
+            for(let i = 0; i < files.length; i++) {
                 const file = files[i];
                 loadingEl.textContent = `Uploading ${i + 1}/${files.length}: ${file.name}...`;
 
@@ -508,46 +705,60 @@
                         body: formData
                     });
 
-                    if (!response.ok) {
+                    if(!response.ok) {
                         throw new Error(`Status: ${response.status}`);
                     }
                     successCount++;
-                } catch (error) {
+                } catch(error) {
                     failCount++;
                     errors.push(`${file.name}: ${error.message}`);
                     console.error(`Error uploading ${file.name}:`, error);
                 }
             }
 
-            // Show results
-            if (successCount > 0) {
+            if(successCount > 0) {
                 loadingEl.textContent = `Successfully uploaded ${successCount} file(s). Refreshing library...`;
                 await loadSongs();
             }
 
-            if (failCount > 0) {
+            if(failCount > 0) {
                 errorEl.innerHTML = `Failed to upload ${failCount} file(s):<br>${errors.join('<br>')}`;
                 errorEl.style.display = 'block';
             }
 
-            // Clear the file input
             event.target.value = '';
 
-        } catch (error) {
-            console.error('Error during upload process:', error);
-            errorEl.textContent = `Upload process failed: ${error.message}`;
+        } catch(error) {
+            console.error('Error during file upload:', error);
+            errorEl.textContent = `Upload failed: ${error.message}`;
             errorEl.style.display = 'block';
         } finally {
-            if (loadingEl.textContent.includes('Refreshing')) {
-                setTimeout(() => { loadingEl.style.display = 'none'; }, 2000);
+            if(loadingEl.textContent.includes('Refreshing')) {
+                setTimeout(() => {
+                    loadingEl.style.display = 'none';
+                }, 2000);
             } else {
                 loadingEl.style.display = 'none';
             }
         }
     }
 
-    // Initialize the app
-    document.addEventListener('DOMContentLoaded', function () {
+    // Initialize audio event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+        const audio = document.getElementById('audio');
+
+        audio.addEventListener('timeupdate', updateProgress);
+        audio.addEventListener('loadedmetadata', updateProgress);
+        audio.addEventListener('ended', playNext);
+
+        audio.addEventListener('play', () => {
+            document.getElementById('playPauseBtn').textContent = '⏸';
+        });
+
+        audio.addEventListener('pause', () => {
+            document.getElementById('playPauseBtn').textContent = '▶';
+        });
+
         loadSongs();
     });
 </script>
