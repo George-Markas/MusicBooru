@@ -18,12 +18,11 @@ public class Track {
     private Integer id;
 
     @Column(unique = true)
-    private String fileName;
     private String title;
     private String artist;
     private String album;
     private String genre;
     private String year;
     private String sampleRate;
-    private boolean isFavorited;
+    private String fileName;
 }

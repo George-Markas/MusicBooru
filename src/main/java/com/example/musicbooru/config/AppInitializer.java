@@ -27,10 +27,10 @@ public class AppInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        makeAdmin();
+        createAdmin();
     }
 
-    public void makeAdmin() {
+    public void createAdmin() {
         if(!userRepository.existsByUsername("admin")) {
             User admin = User.builder()
                     .username(adminUsername)
