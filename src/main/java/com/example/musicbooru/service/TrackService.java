@@ -82,7 +82,7 @@ public class TrackService {
         }
     }
 
-    public void deleteTrack(Integer id) throws NoSuchElementException, IOException {
+    public void deleteTrack(String id) throws NoSuchElementException, IOException {
         Track toBeDeleted = trackRepository.findById(id).orElseThrow();
         Path path = Paths.get("./tracks/", toBeDeleted.getFileName());
         Path coverPath = Paths.get("./tracks/covers/", toBeDeleted.getId() + ".jpg");
@@ -91,7 +91,7 @@ public class TrackService {
         trackRepository.deleteById(id);
     }
 
-    public Optional<Track> getTrackById(Integer id) {
+    public Optional<Track> getTrackById(String id) {
         return trackRepository.findById(id);
     }
 

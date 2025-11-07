@@ -38,7 +38,7 @@ public class TrackController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Track> getTrack(@PathVariable Integer id) {
+    public ResponseEntity<Track> getTrack(@PathVariable String id) {
         Optional<Track> track = trackService.getTrackById(id);
 
         if(track.isPresent()) {
@@ -48,13 +48,13 @@ public class TrackController {
     }
 
     @PostMapping("/delete/{id}")
-    public ResponseEntity<String> deleteTrack(@PathVariable Integer id) {
-      try {
-          trackService.deleteTrack(id);
-          return ResponseEntity.ok("Track deleted.");
-      } catch (IOException | NoSuchElementException e) {
-          return ResponseEntity.badRequest().build();
-      }
+    public ResponseEntity<String> deleteTrack(@PathVariable String id) {
+        try {
+            trackService.deleteTrack(id);
+            return ResponseEntity.ok("Track deleted.");
+        } catch(IOException | NoSuchElementException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @GetMapping("/")
@@ -63,7 +63,7 @@ public class TrackController {
     }
 
     @GetMapping("/stream/{id}")
-    public ResponseEntity<ResourceRegion> streamAudio(@PathVariable Integer id) throws IOException {
+    public ResponseEntity<ResourceRegion> streamAudio(@PathVariable String id) throws IOException {
         Optional<Track> track = Optional.ofNullable(trackService.getTrackById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)));
 
@@ -80,7 +80,7 @@ public class TrackController {
     }
 
     @GetMapping("/art/{id}")
-    public ResponseEntity<Resource> getCoverArt(@PathVariable Integer id) {
+    public ResponseEntity<Resource> getCoverArt(@PathVariable String id) {
         Resource coverArt = new FileSystemResource("./tracks/covers/" + id + ".jpg");
         return ResponseEntity.ok()
                 .contentType(MediaType.IMAGE_JPEG)
