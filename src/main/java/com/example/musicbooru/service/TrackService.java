@@ -48,6 +48,8 @@ public class TrackService {
         if(originalFilename == null) {
             throw new IllegalArgumentException("File must have a name");
         }
+
+        // TODO Implement extension derivation from content type
         String extension = "." + FilenameUtils.getExtension(originalFilename);
         Path tmpFile = Files.createTempFile(null, extension);
         Files.copy(file.getInputStream(), tmpFile, StandardCopyOption.REPLACE_EXISTING);
