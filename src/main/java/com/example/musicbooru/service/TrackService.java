@@ -38,7 +38,7 @@ public class TrackService {
         this.trackRepository = trackRepository;
     }
 
-    public void addTrack(MultipartFile file) throws IOException, CannotReadException, TagException, InvalidAudioFrameException, ReadOnlyFileException {
+    public void uploadTrack(MultipartFile file) throws IOException, CannotReadException, TagException, InvalidAudioFrameException, ReadOnlyFileException {
         // Create library directory if it does not exist already
         Path libraryDir = Paths.get("./tracks/covers");
         Files.createDirectories(libraryDir);
