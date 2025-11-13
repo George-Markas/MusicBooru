@@ -17,6 +17,8 @@ import java.util.Optional;
 import java.io.IOException;
 import java.io.FileNotFoundException;
 
+import static com.example.musicbooru.service.TrackService.library;
+
 @AllArgsConstructor
 @RestController
 @RequestMapping("/api/")
@@ -33,7 +35,7 @@ public class StreamController {
 
             StreamingResponseBody responseStream;
             // TODO Implement extension derivation from content type
-            Path filePath = Paths.get("./tracks/" + track.orElseThrow().getFileName());
+            Path filePath = Paths.get(library + track.orElseThrow().getFileName());
             long fileSize = Files.size(filePath);
             byte[] buffer = new byte[8192];
             final HttpHeaders responseHeaders = new HttpHeaders();
