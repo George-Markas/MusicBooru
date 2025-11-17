@@ -94,6 +94,18 @@
             <artifactId>jaudiotagger</artifactId>
             <version>3.0.1</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/com.sksamuel.scrimage/scrimage-core -->
+        <dependency>
+            <groupId>com.sksamuel.scrimage</groupId>
+            <artifactId>scrimage-core</artifactId>
+            <version>4.3.5</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.sksamuel.scrimage/scrimage-webp -->
+        <dependency>
+            <groupId>com.sksamuel.scrimage</groupId>
+            <artifactId>scrimage-webp</artifactId>
+            <version>4.3.5</version>
+        </dependency>
     </dependencies>
 
     <build>

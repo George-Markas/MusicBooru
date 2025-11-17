@@ -1,5 +1,7 @@
 package com.example.musicbooru.util;
 
+import com.sksamuel.scrimage.ImmutableImage;
+import com.sksamuel.scrimage.webp.WebpWriter;
 import lombok.Getter;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
@@ -13,13 +15,11 @@ import org.jaudiotagger.tag.images.Artwork;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 
-import static com.example.musicbooru.service.TrackService.artwork;
+import static com.example.musicbooru.service.TrackService.ARTWORK;
+import static com.example.musicbooru.service.TrackService.FILE_EXTENSION;
 
 @Getter
 public class JaudiotaggerWrapper {
@@ -45,20 +45,16 @@ public class JaudiotaggerWrapper {
     }
 
     public String constructFileName() {
-        // TODO Support more audio formats
-        final String fileExtension = ".flac"; // Assuming FLAC for now
-        return this.tag.getFirst(FieldKey.ARTIST) + " - " + this.tag.getFirst(FieldKey.TITLE) + fileExtension;
+        return this.tag.getFirst(FieldKey.ARTIST) + " - " + this.tag.getFirst(FieldKey.TITLE) + FILE_EXTENSION;
     }
 
     public boolean extractArtwork(String id) {
-        Artwork art = this.tag.getFirstArtwork();
-        if(art != null) {
-            byte[] imageData = art.getBinaryData();
-            ByteArrayInputStream bais = new ByteArrayInputStream(imageData);
+        Artwork artwork = this.tag.getFirstArtwork();
+        if(artwork != null) {
+            byte[] imageData = artwork.getBinaryData();
             try {
-                BufferedImage bufferedImage = ImageIO.read(bais);
-                File file = new File(artwork + id + ".jpg");
-                ImageIO.write(bufferedImage, "jpg", file);
+                ImmutableImage immutableImage = ImmutableImage.loader().fromBytes(imageData);
+                immutableImage.output(WebpWriter.MAX_LOSSLESS_COMPRESSION, ARTWORK + id + ".webp");
                 return true;
             } catch(IOException e) {
                 logger.error("Could not read image data; an I/O error occurred", e);

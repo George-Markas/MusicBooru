@@ -21,8 +21,11 @@ public class TrackService {
     private final Logger logger = LoggerFactory.getLogger(TrackService.class.getName());
     private final TrackRepository trackRepository;
 
-    public final static String library = "./library/";
-    public final static String artwork = "./artwork/";
+    public final static String LIBRARY = "./library/";
+    public final static String ARTWORK = "./artwork/";
+
+    // TODO Support more audio formats
+    public final static String FILE_EXTENSION = ".flac"; // Assuming FLAC for now
 
     public TrackService(TrackRepository trackRepository) {
         this.trackRepository = trackRepository;
@@ -31,17 +34,15 @@ public class TrackService {
     public void uploadTrack(MultipartFile file) {
         try {
             // Create directories for the audio files and accompanying artwork, if said directories don't exist
-            Files.createDirectories(Path.of(library));
-            Files.createDirectories(Path.of(artwork));
+            Files.createDirectories(Path.of(LIBRARY));
+            Files.createDirectories(Path.of(ARTWORK));
         } catch(IOException e) {
             logger.error("Could not create directory; an I/O error occurred", e);
         }
 
-        // TODO Support more audio formats
-        final String fileExtension = ".flac"; // Assuming FLAC for now
         try {
             // Save song as temporary file for metadata extraction
-            Path tmp = Files.createTempFile(null, fileExtension);
+            Path tmp = Files.createTempFile(null, FILE_EXTENSION);
             Files.copy(file.getInputStream(), tmp, StandardCopyOption.REPLACE_EXISTING);
 
             // Construct file name from metadata
@@ -49,7 +50,7 @@ public class TrackService {
             final String fileName = jwrap.constructFileName();
 
             // Move song to the library directory
-            final Path target = Paths.get(library + fileName);
+            final Path target = Paths.get(LIBRARY + fileName);
             if(Files.exists(target)) {
                 logger.warn("File \"{}\" already exists and will be overwritten", fileName);
             }
@@ -83,8 +84,8 @@ public class TrackService {
             Track track = trackRepository.findById(id).orElseThrow();
             try {
                 trackRepository.delete(track);
-                Files.delete(Paths.get(library + track.getFileName()));
-                Files.delete(Paths.get(artwork + track.getId() + ".jpg"));
+                Files.delete(Paths.get(LIBRARY + track.getFileName()));
+                Files.delete(Paths.get(ARTWORK + track.getId() + ".webp"));
                 logger.info("Deleted track with ID {}", id);
             } catch(NoSuchFileException e) {
                 logger.error("File does not exist", e);

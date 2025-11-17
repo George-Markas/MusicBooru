@@ -19,8 +19,8 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 
-import static com.example.musicbooru.service.TrackService.library;
-import static com.example.musicbooru.service.TrackService.artwork;
+import static com.example.musicbooru.service.TrackService.LIBRARY;
+import static com.example.musicbooru.service.TrackService.ARTWORK;
 
 @AllArgsConstructor
 @RestController
@@ -61,7 +61,7 @@ public class TrackController {
         Optional<Track> track = Optional.ofNullable(trackService.getTrackById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)));
 
-        String path = library + track.orElseThrow().getFileName();
+        String path = LIBRARY + track.orElseThrow().getFileName();
 
         UrlResource resource = new UrlResource(Paths.get(path).toUri());
         long contentLength = resource.contentLength();
@@ -75,7 +75,7 @@ public class TrackController {
 
     @GetMapping("/art/{id}")
     public ResponseEntity<Resource> getCoverArt(@PathVariable String id) {
-        Resource coverArt = new FileSystemResource(artwork + id + ".jpg");
+        Resource coverArt = new FileSystemResource(ARTWORK + id + ".webp");
         return ResponseEntity.ok()
                 .contentType(MediaType.IMAGE_JPEG)
                 .body(coverArt);
