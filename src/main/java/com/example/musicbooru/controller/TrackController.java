@@ -2,10 +2,6 @@ package com.example.musicbooru.controller;
 
 import com.example.musicbooru.model.Track;
 import com.example.musicbooru.service.TrackService;
-import org.jaudiotagger.audio.exceptions.CannotReadException;
-import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
-import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
-import org.jaudiotagger.tag.TagException;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -21,8 +17,10 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
+
+import static com.example.musicbooru.service.TrackService.library;
+import static com.example.musicbooru.service.TrackService.artwork;
 
 @AllArgsConstructor
 @RestController
@@ -32,9 +30,9 @@ public class TrackController {
     private final TrackService trackService;
 
     @PostMapping("/upload")
-    public ResponseEntity<String> uploadTrack(@RequestPart("file") MultipartFile file) throws IOException, CannotReadException, TagException, InvalidAudioFrameException, ReadOnlyFileException {
-        trackService.addTrack(file);
-        return ResponseEntity.ok("Track uploaded.");
+    public ResponseEntity<String> uploadTrack(@RequestPart("file") MultipartFile file) {
+        trackService.uploadTrack(file);
+        return ResponseEntity.ok("Track uploaded");
     }
 
     @GetMapping("/{id}")
@@ -49,12 +47,8 @@ public class TrackController {
 
     @PostMapping("/delete/{id}")
     public ResponseEntity<String> deleteTrack(@PathVariable String id) {
-        try {
-            trackService.deleteTrack(id);
-            return ResponseEntity.ok("Track deleted.");
-        } catch(IOException | NoSuchElementException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        trackService.deleteTrack(id);
+        return ResponseEntity.ok("Track deleted");
     }
 
     @GetMapping("/")
@@ -67,7 +61,7 @@ public class TrackController {
         Optional<Track> track = Optional.ofNullable(trackService.getTrackById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)));
 
-        String path = "./tracks/" + track.orElseThrow().getFileName();
+        String path = library + track.orElseThrow().getFileName();
 
         UrlResource resource = new UrlResource(Paths.get(path).toUri());
         long contentLength = resource.contentLength();
@@ -81,7 +75,7 @@ public class TrackController {
 
     @GetMapping("/art/{id}")
     public ResponseEntity<Resource> getCoverArt(@PathVariable String id) {
-        Resource coverArt = new FileSystemResource("./tracks/covers/" + id + ".jpg");
+        Resource coverArt = new FileSystemResource(artwork + id + ".jpg");
         return ResponseEntity.ok()
                 .contentType(MediaType.IMAGE_JPEG)
                 .body(coverArt);
