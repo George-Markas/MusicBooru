@@ -6,6 +6,7 @@ import lombok.Getter;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.audio.exceptions.CannotReadException;
+import org.jaudiotagger.audio.exceptions.CannotWriteException;
 import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
 import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
 import org.jaudiotagger.tag.FieldKey;
@@ -24,12 +25,13 @@ import static com.example.musicbooru.service.TrackService.FILE_EXTENSION;
 @Getter
 public class JaudiotaggerWrapper {
 
+    private AudioFile audioFile;
     private Tag tag;
     private final Logger logger = LoggerFactory.getLogger(JaudiotaggerWrapper.class.getName());
 
     public JaudiotaggerWrapper(File file) {
         try {
-            AudioFile audioFile = AudioFileIO.read(file);
+            audioFile = AudioFileIO.read(file);
             this.tag = audioFile.getTag();
         } catch(CannotReadException e) {
             logger.error("File could not be read", e);
@@ -55,9 +57,14 @@ public class JaudiotaggerWrapper {
             try {
                 ImmutableImage immutableImage = ImmutableImage.loader().fromBytes(imageData);
                 immutableImage.output(WebpWriter.MAX_LOSSLESS_COMPRESSION, ARTWORK + id + ".webp");
+                // Delete the embedded artwork since we don't need two instances of it
+                this.tag.deleteArtworkField();
+                this.audioFile.commit();
                 return true;
             } catch(IOException e) {
                 logger.error("Could not read image data; an I/O error occurred", e);
+            } catch(CannotWriteException e) {
+                logger.error("Could not write to file", e);
             }
         } else {
             logger.warn("Track with ID {} has no embedded cover art", id);

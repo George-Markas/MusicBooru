@@ -49,13 +49,6 @@ public class TrackService {
             JaudiotaggerWrapper jwrap = new JaudiotaggerWrapper(tmp.toFile());
             final String fileName = jwrap.constructFileName();
 
-            // Move song to the library directory
-            final Path target = Paths.get(LIBRARY + fileName);
-            if(Files.exists(target)) {
-                logger.warn("File \"{}\" already exists and will be overwritten", fileName);
-            }
-            Files.move(tmp, target, StandardCopyOption.REPLACE_EXISTING);
-
             // Make database entry
             Track track = Track.builder()
                     .title(jwrap.getTag().getFirst(FieldKey.TITLE))
@@ -72,6 +65,13 @@ public class TrackService {
             if(jwrap.extractArtwork(track.getId())) {
                 track.setHasArtwork(true);
             }
+
+            // Move song to the library directory
+            final Path target = Paths.get(LIBRARY + fileName);
+            if(Files.exists(target)) {
+                logger.warn("File \"{}\" already exists and will be overwritten", fileName);
+            }
+            Files.move(tmp, target, StandardCopyOption.REPLACE_EXISTING);
 
             logger.info("Uploaded track with ID {}", track.getId());
         } catch(IOException e) {
