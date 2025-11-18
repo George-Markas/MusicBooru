@@ -62,7 +62,7 @@ public class JaudiotaggerWrapper {
                 this.audioFile.commit();
                 return true;
             } catch(IOException e) {
-                logger.error("Could not read image data; an I/O error occurred", e);
+                logger.error("Could not read image data", e);
             } catch(CannotWriteException e) {
                 logger.error("Could not write to file", e);
             }
