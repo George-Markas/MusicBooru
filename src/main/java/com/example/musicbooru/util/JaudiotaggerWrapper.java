@@ -19,8 +19,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 
-import static com.example.musicbooru.service.TrackService.ARTWORK;
-import static com.example.musicbooru.service.TrackService.FILE_EXTENSION;
+import static com.example.musicbooru.util.Commons.*;
 
 @Getter
 public class JaudiotaggerWrapper {

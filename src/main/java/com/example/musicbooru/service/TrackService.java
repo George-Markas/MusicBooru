@@ -16,18 +16,13 @@ import java.nio.file.*;
 import java.util.List;
 import java.util.Optional;
 
+import static com.example.musicbooru.util.Commons.*;
+
 @Service
 public class TrackService {
 
     private final Logger logger = LoggerFactory.getLogger(TrackService.class.getName());
     private final TrackRepository trackRepository;
-
-    public final static String LIBRARY = "./library/";
-    public final static String ARTWORK = "./artwork/";
-    public final static String NO_COVER = "static/no_cover.webp";
-
-    // TODO Support more audio formats
-    public final static String FILE_EXTENSION = ".flac"; // Assuming FLAC for now
 
     public TrackService(TrackRepository trackRepository) {
         this.trackRepository = trackRepository;

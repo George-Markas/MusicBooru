@@ -20,8 +20,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
-import static com.example.musicbooru.service.TrackService.ARTWORK;
-import static com.example.musicbooru.service.TrackService.NO_COVER;
+import static com.example.musicbooru.util.Commons.*;
 
 @AllArgsConstructor
 @RestController
