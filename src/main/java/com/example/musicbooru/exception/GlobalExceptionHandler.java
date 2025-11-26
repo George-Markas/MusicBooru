@@ -17,6 +17,7 @@ public class GlobalExceptionHandler {
                 e.getMessage(),
                 LocalDateTime.now()
         );
+
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -27,6 +28,7 @@ public class GlobalExceptionHandler {
                 e.getMessage(),
                 LocalDateTime.now()
         );
+
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 }

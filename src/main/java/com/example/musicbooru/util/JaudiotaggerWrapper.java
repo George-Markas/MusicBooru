@@ -1,7 +1,5 @@
 package com.example.musicbooru.util;
 
-import com.sksamuel.scrimage.ImmutableImage;
-import com.sksamuel.scrimage.webp.WebpWriter;
 import lombok.Getter;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
@@ -16,6 +14,9 @@ import org.jaudiotagger.tag.images.Artwork;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 
@@ -54,11 +55,13 @@ public class JaudiotaggerWrapper {
         if(artwork != null) {
             byte[] imageData = artwork.getBinaryData();
             try {
-                ImmutableImage immutableImage = ImmutableImage.loader().fromBytes(imageData);
-                immutableImage.output(WebpWriter.MAX_LOSSLESS_COMPRESSION, ARTWORK + id + ".webp");
+                BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(imageData));
+                ImageIO.write(bufferedImage, "jpg", new File(ARTWORK + id + ".jpg"));
+
                 // Delete the embedded artwork since we don't need two instances of it
                 this.tag.deleteArtworkField();
                 this.audioFile.commit();
+
                 return true;
             } catch(IOException e) {
                 logger.error("Could not read image data", e);
@@ -68,6 +71,7 @@ public class JaudiotaggerWrapper {
         } else {
             logger.warn("Track with ID {} has no embedded cover art", id);
         }
+
         return false;
     }
 }

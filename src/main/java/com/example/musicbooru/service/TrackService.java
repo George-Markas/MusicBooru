@@ -38,12 +38,12 @@ public class TrackService {
 
     public void uploadTrack(MultipartFile file) {
         try {
-            // Create directories for the audio files and accompanying artwork, if said directories don't exist
+            // Create directories for the audio files and accompanying artwork
             Files.createDirectories(Path.of(LIBRARY));
             Files.createDirectories(Path.of(ARTWORK));
         } catch(IOException e) {
             logger.error("Could not create directory", e);
-            throw new GenericException("Could not create directory");
+            throw new GenericException("Could not create directory", e);
         }
 
         try {
@@ -83,7 +83,7 @@ public class TrackService {
             logger.info("Uploaded track with ID {}", track.getId());
         } catch(IOException e) {
             logger.error("An unexpected error occurred", e);
-            throw new GenericException("An unexpected error occurred");
+            throw new GenericException("An unexpected error occurred", e);
         }
     }
 
@@ -96,11 +96,11 @@ public class TrackService {
         try {
             trackRepository.delete(track);
             Files.delete(Paths.get(LIBRARY + track.getFileName()));
-            Files.delete(Paths.get(ARTWORK + track.getId() + ".webp"));
+            Files.delete(Paths.get(ARTWORK + track.getId() + ".jpg"));
             logger.info("Deleted track with ID {}", id);
         } catch(IOException e) {
             logger.error("Could not delete track with ID {}; ", id, e);
-            throw new GenericException("Could not delete track with ID " + id);
+            throw new GenericException("Could not delete track with ID " + id, e);
         }
     }
 }

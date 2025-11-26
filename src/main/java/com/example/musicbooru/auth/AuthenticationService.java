@@ -54,7 +54,7 @@ public class AuthenticationService {
                 )
         );
 
-        // Use view to get only the needed fields for authentication to avoid Springboot eager loading joined tables
+        // Use view to get only the needed fields for authentication to avoid eager loading joined tables
         var userAuth = authViewRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException(request.getUsername()));
 

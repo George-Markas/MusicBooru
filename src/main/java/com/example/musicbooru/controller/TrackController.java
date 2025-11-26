@@ -87,7 +87,7 @@ public class TrackController {
         try {
             Resource resource;
             if(track.get().isHasArtwork()) {
-                Path path = Path.of(ARTWORK + id + ".webp");
+                Path path = Path.of(ARTWORK + id + ".jpg");
                 resource = new UrlResource(path.toUri());
             } else {
                 resource = new ClassPathResource(NO_COVER);
@@ -95,7 +95,7 @@ public class TrackController {
             }
 
             return ResponseEntity.ok()
-                    .contentType(MediaType.parseMediaType("image/webp"))
+                    .contentType(MediaType.IMAGE_JPEG)
                     .body(resource);
         } catch(MalformedURLException e) {
             logger.error("Could not fetch artwork", e);
