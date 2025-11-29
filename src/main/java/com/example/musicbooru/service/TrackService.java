@@ -51,6 +51,7 @@ public class TrackService {
             Path tmp = Files.createTempFile(null, FILE_EXTENSION);
             Files.copy(file.getInputStream(), tmp, StandardCopyOption.REPLACE_EXISTING);
 
+            // TODO the wrapper for Jaudiotagger might need a rewrite to make it more "elegant"
             // Construct file name from metadata
             JaudiotaggerWrapper jwrap = new JaudiotaggerWrapper(tmp.toFile());
             final String fileName = jwrap.constructFileName();
@@ -94,13 +95,22 @@ public class TrackService {
         });
 
         try {
-            trackRepository.delete(track);
             Files.delete(Paths.get(LIBRARY + track.getFileName()));
-            Files.delete(Paths.get(ARTWORK + track.getId() + ".jpg"));
-            logger.info("Deleted track with ID {}", id);
+            logger.info("Deleted audio file of track with ID {}", id);
         } catch(IOException e) {
-            logger.error("Could not delete track with ID {}; ", id, e);
-            throw new GenericException("Could not delete track with ID " + id, e);
+            logger.error("Could not delete audio file of track with ID {}", id, e);
+            throw new GenericException("Could not delete audio file of track with ID " + id, e);
         }
+
+        try {
+            Files.delete(Paths.get(ARTWORK + track.getId() + ".jpg"));
+            logger.info("Deleted artwork of track with ID {}", id);
+        } catch(IOException e) {
+            logger.error("Could not delete artwork of track with with ID {}; ", id, e);
+            throw new GenericException("Could not delete artwork of track with ID " + id, e);
+        }
+
+        trackRepository.delete(track);
+        logger.info("Deleted database entry of track with ID {}", id);
     }
 }
