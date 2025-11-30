@@ -58,24 +58,6 @@ public class TrackController {
         return ResponseEntity.ok("Track deleted");
     }
 
-    // TODO Rewrite this properly using StreamController
-//    @GetMapping("/stream/{id}")
-//    public ResponseEntity<ResourceRegion> streamAudio(@PathVariable String id) throws IOException {
-//        Optional<Track> track = Optional.ofNullable(trackService.getTrackById(id)
-//                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)));
-//
-//        String path = LIBRARY + track.orElseThrow().getFileName();
-//
-//        UrlResource resource = new UrlResource(Paths.get(path).toUri());
-//        long contentLength = resource.contentLength();
-//
-//        // Return the whole file
-//        return ResponseEntity.ok()
-//                .header("Accept-Ranges", "bytes")
-//                .header("Content-Type", "audio/" + path.substring(path.lastIndexOf('.') + 1))
-//                .body(new ResourceRegion(resource, 0, contentLength));
-//    }
-
     @GetMapping("/art/{id}")
     public ResponseEntity<Resource> getArtwork(@PathVariable String id) {
         Optional<Track> track = trackService.getTrackById(id);
