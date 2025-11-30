@@ -1,7 +1,7 @@
 package com.example.musicbooru.controller;
 
 import com.example.musicbooru.exception.GenericException;
-import com.example.musicbooru.exception.TrackNotFoundException;
+import com.example.musicbooru.exception.ResourceNotFoundException;
 import com.example.musicbooru.model.Track;
 import com.example.musicbooru.service.TrackService;
 import org.slf4j.Logger;
@@ -43,7 +43,7 @@ public class TrackController {
             return ResponseEntity.ok(track.get());
         }
         logger.error("Could not find track with ID {}", id);
-        throw new TrackNotFoundException("Could not find track with ID " + id);
+        throw new ResourceNotFoundException("Could not find track with ID " + id);
     }
 
     @PostMapping("/upload")
@@ -63,7 +63,7 @@ public class TrackController {
         Optional<Track> track = trackService.getTrackById(id);
         if(track.isEmpty()) {
             logger.error("Could not fetch artwork; track with ID {} was not found", id);
-            throw new TrackNotFoundException("Could not fetch artwork; track with ID " + id + " was not found");
+            throw new ResourceNotFoundException("Could not fetch artwork; track with ID " + id + " was not found");
         }
 
         try {

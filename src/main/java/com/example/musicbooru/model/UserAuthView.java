@@ -31,7 +31,6 @@ public class UserAuthView implements UserDetails {
     @Column(name = "role")
     private Role role;
 
-    // UserDetails implementation methods
     @Override
     public String getUsername() {
         return username;

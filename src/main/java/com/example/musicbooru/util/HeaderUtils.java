@@ -23,7 +23,7 @@ public class HeaderUtils {
             return String.format("\"%d-%d\"", attrs.lastModifiedTime().toMillis(), attrs.size());
         } catch(IOException e) {
             logger.error("Could not read file attributes", e);
-            throw new GenericException("Could not read file attributes", e);
+            throw new GenericException("Could not read file attributes");
         }
     }
 
@@ -48,7 +48,7 @@ public class HeaderUtils {
             return ZonedDateTime.parse(httpDate, formatter).toInstant();
         } catch(DateTimeParseException e) {
             logger.error("Could not parse date string", e);
-            throw new GenericException("Could not parse date string", e);
+            throw new GenericException("Could not parse date string");
         }
     }
 }

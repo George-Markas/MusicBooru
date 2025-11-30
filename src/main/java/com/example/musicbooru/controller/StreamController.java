@@ -1,7 +1,7 @@
 package com.example.musicbooru.controller;
 
 import com.example.musicbooru.exception.GenericException;
-import com.example.musicbooru.exception.TrackNotFoundException;
+import com.example.musicbooru.exception.ResourceNotFoundException;
 import com.example.musicbooru.model.Track;
 import com.example.musicbooru.service.TrackService;
 import com.example.musicbooru.util.HeaderUtils;
@@ -43,18 +43,18 @@ public class StreamController {
         Optional<Track> track = trackService.getTrackById(id);
         if(track.isEmpty()) {
             logger.error("Could not find track with ID {}", id);
-            throw new TrackNotFoundException("Could not find track with ID " + id);
+            throw new ResourceNotFoundException("Could not find track with ID " + id);
         }
 
         String fileName = track.orElseThrow(() -> {
             logger.error("Could not get filename for track with ID {}", id);
-            return new GenericException("Could not get filename for track with ID " + id);
+            return new ResourceNotFoundException("Could not get filename for track with ID " + id);
         }).getFileName();
 
         Path filePath = Path.of(LIBRARY + fileName);
         if(Files.notExists(filePath)) {
             logger.error("Could not find audio file with path {} for track with ID {}", filePath, id);
-            return ResponseEntity.notFound().build();
+            throw new ResourceNotFoundException("Could not find audio file with path" + filePath + "for track with ID " + id);
         }
 
         try {
@@ -116,7 +116,7 @@ public class StreamController {
                     .body(resource);
         } catch(IOException e) {
             logger.error("An unexpected error occurred", e);
-            throw new GenericException("An unexpected error occurred", e);
+            throw new GenericException("An unexpected error occurred");
         }
     }
 }

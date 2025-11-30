@@ -1,7 +1,7 @@
 package com.example.musicbooru.service;
 
 import com.example.musicbooru.exception.GenericException;
-import com.example.musicbooru.exception.TrackNotFoundException;
+import com.example.musicbooru.exception.ResourceNotFoundException;
 import com.example.musicbooru.model.Track;
 import com.example.musicbooru.repository.TrackRepository;
 import com.example.musicbooru.util.JaudiotaggerWrapper;
@@ -22,6 +22,7 @@ import static com.example.musicbooru.util.Commons.*;
 public class TrackService {
 
     private final Logger logger = LoggerFactory.getLogger(TrackService.class.getName());
+
     private final TrackRepository trackRepository;
 
     public TrackService(TrackRepository trackRepository) {
@@ -43,7 +44,7 @@ public class TrackService {
             Files.createDirectories(Path.of(ARTWORK));
         } catch(IOException e) {
             logger.error("Could not create directory", e);
-            throw new GenericException("Could not create directory", e);
+            throw new GenericException("Could not create directory");
         }
 
         try {
@@ -84,14 +85,14 @@ public class TrackService {
             logger.info("Uploaded track with ID {}", track.getId());
         } catch(IOException e) {
             logger.error("An unexpected error occurred", e);
-            throw new GenericException("An unexpected error occurred", e);
+            throw new GenericException("An unexpected error occurred");
         }
     }
 
     public void deleteTrack(String id) {
         Track track = trackRepository.findById(id).orElseThrow(() -> {
             logger.error("Could not find track with ID {}", id);
-            return new TrackNotFoundException("Could not find track with ID " + id);
+            return new ResourceNotFoundException("Could not find track with ID " + id);
         });
 
         try {
@@ -99,7 +100,7 @@ public class TrackService {
             logger.info("Deleted audio file of track with ID {}", id);
         } catch(IOException e) {
             logger.error("Could not delete audio file of track with ID {}", id, e);
-            throw new GenericException("Could not delete audio file of track with ID " + id, e);
+            throw new GenericException("Could not delete audio file of track with ID " + id);
         }
 
         try {
@@ -107,7 +108,7 @@ public class TrackService {
             logger.info("Deleted artwork of track with ID {}", id);
         } catch(IOException e) {
             logger.error("Could not delete artwork of track with with ID {}; ", id, e);
-            throw new GenericException("Could not delete artwork of track with ID " + id, e);
+            throw new GenericException("Could not delete artwork of track with ID " + id);
         }
 
         trackRepository.delete(track);
