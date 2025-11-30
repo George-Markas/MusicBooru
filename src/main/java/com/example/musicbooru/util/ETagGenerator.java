@@ -14,8 +14,7 @@ public class ETagGenerator {
     private static final Logger logger = LoggerFactory.getLogger(ETagGenerator.class.getName());
 
     // We're opting to generate the ETag from metadata as opposed to hashing the audio file
-    // since we're dealing with relatively large files (30MB - 100MB) and it would defeat the
-    // purpose of streaming
+    // since we're dealing with relatively large files (30MB - 100MB)
 
     public static String generateETag(Path path) {
         try {

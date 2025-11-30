@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpRange;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +22,9 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static com.example.musicbooru.util.Commons.LIBRARY;
@@ -31,16 +35,18 @@ import static com.example.musicbooru.util.Commons.MEDIA_TYPE_FLAC;
 @RequestMapping("/api/stream")
 public class StreamController {
 
-    private final Logger logger = LoggerFactory.getLogger(StreamController.class);
+    private static final Logger logger = LoggerFactory.getLogger(StreamController.class);
 
     private final TrackService trackService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<StreamingResponseBody> streamResource(
+    public ResponseEntity<StreamingResponseBody> serveResource(
             @PathVariable String id,
             WebRequest request,
             @RequestHeader(value = HttpHeaders.IF_MATCH, required = false) String ifMatch,
-            @RequestHeader(value = HttpHeaders.IF_UNMODIFIED_SINCE, required = false) String ifUnmodifiedSince
+            @RequestHeader(value = HttpHeaders.IF_UNMODIFIED_SINCE, required = false) String ifUnmodifiedSince,
+            @RequestHeader(value = HttpHeaders.RANGE, required = false) String Range,
+            @RequestHeader(value = HttpHeaders.IF_RANGE, required = false) String ifRange
     ) {
 
         Optional<Track> track = trackService.getTrackById(id);
@@ -66,11 +72,11 @@ public class StreamController {
             long fileSize = Files.size(filePath);
             Instant lastModified = Files.getLastModifiedTime(filePath).toInstant();
             String contentType = MEDIA_TYPE_FLAC; // TODO Do this programmatically to support more formats
+            String etag = ETagGenerator.generateETag(filePath);
 
             // --- Validate request headers for caching ---
 
             // If-None-Match header should contain "*" or ETag. If so, return 304
-            String etag = ETagGenerator.generateETag(filePath);
             if(request.checkNotModified(etag)) {
                 return null; // Returns 304 automatically
             }
@@ -96,7 +102,27 @@ public class StreamController {
                 }
             }
 
-            // --- Validate request headers for resume ---
+            // --- Validate and process range ---
+
+            if(Range != null) {
+                try {
+                    List<HttpRange> ranges = new ArrayList<>();
+                    ranges = HttpRange.parseRanges(Range);
+
+                    // If-Range header is either malformed or contains a date (not an ETag)
+                    // Either way, return 200 (full resource)
+                    if(ifRange != null && !ifRange.equals(etag)) {
+
+                    }
+
+                } catch (IllegalArgumentException e) {
+                    logger.error("Could not parse range header", e);
+                    return ResponseEntity.status(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE)
+                            .header(HttpHeaders.CONTENT_RANGE, "bytes */" + fileSize)
+                            .build();
+                }
+            }
+
 
         } catch(IOException e) {
             logger.error("An unexpected error occurred", e);
@@ -121,8 +147,13 @@ public class StreamController {
         }
 
         public static Instant parseHttpDate(String httpDate) {
-            DateTimeFormatter formatter = DateTimeFormatter.RFC_1123_DATE_TIME;
-            return ZonedDateTime.parse(httpDate, formatter).toInstant();
+            try {
+                DateTimeFormatter formatter = DateTimeFormatter.RFC_1123_DATE_TIME;
+                return ZonedDateTime.parse(httpDate, formatter).toInstant();
+            } catch (DateTimeParseException e) {
+                logger.error("Could not parse date string", e);
+                throw new GenericException("Could not parse date string", e);
+            }
         }
     }
 }
