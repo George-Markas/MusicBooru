@@ -46,8 +46,8 @@ public class JaudiotaggerWrapper {
         }
     }
 
-    public String constructFileName() {
-        return this.tag.getFirst(FieldKey.ARTIST) + " - " + this.tag.getFirst(FieldKey.TITLE) + FILE_EXTENSION;
+    public String constructFileName(String fileExtension) {
+        return this.tag.getFirst(FieldKey.ARTIST) + " - " + this.tag.getFirst(FieldKey.TITLE) + fileExtension;
     }
 
     public boolean extractArtwork(String id) {

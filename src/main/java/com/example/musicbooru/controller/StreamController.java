@@ -21,14 +21,13 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import static com.example.musicbooru.util.Commons.LIBRARY;
-import static com.example.musicbooru.util.Commons.MEDIA_TYPE_FLAC;
 
 @AllArgsConstructor
 @RestController
 @RequestMapping("/api/stream")
 public class StreamController {
 
-    private static final Logger logger = LoggerFactory.getLogger(StreamController.class);
+    private static final Logger logger = LoggerFactory.getLogger(StreamController.class.getName());
 
     private final TrackService trackService;
 
@@ -106,7 +105,7 @@ public class StreamController {
             // Prepare the resource response
             FileSystemResource resource = new FileSystemResource(filePath.toFile());
             return ResponseEntity.ok()
-                    .contentType(MediaType.parseMediaType(MEDIA_TYPE_FLAC))
+                    .contentType(MediaType.parseMediaType(track.get().getMediaType()))
                     .contentLength(filePath.toFile().length())
                     . eTag(eTag)
                     .lastModified(lastModified)
