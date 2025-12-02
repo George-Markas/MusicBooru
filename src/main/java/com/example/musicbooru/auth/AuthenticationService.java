@@ -20,11 +20,13 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
-    public AuthenticationService(UserRepository userRepository,
-                                 UserAuthViewRepository authViewRepository,
-                                 PasswordEncoder passwordEncoder,
-                                 JwtService jwtService,
-                                 AuthenticationManager authenticationManager) {
+    public AuthenticationService(
+            UserRepository userRepository,
+            UserAuthViewRepository authViewRepository,
+            PasswordEncoder passwordEncoder,
+            JwtService jwtService,
+            AuthenticationManager authenticationManager
+    ) {
         this.repository = userRepository;
         this.authViewRepository = authViewRepository;
         this.passwordEncoder = passwordEncoder;
@@ -54,7 +56,6 @@ public class AuthenticationService {
                 )
         );
 
-        // Use view to get only the needed fields for authentication to avoid Springboot eager loading joined tables
         var userAuth = authViewRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException(request.getUsername()));
 

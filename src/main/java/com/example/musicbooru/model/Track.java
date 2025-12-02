@@ -23,6 +23,5 @@ public class Track {
     private String album;
     private String genre;
     private String year;
-    private String sampleRate;
     private String fileName;
 }
