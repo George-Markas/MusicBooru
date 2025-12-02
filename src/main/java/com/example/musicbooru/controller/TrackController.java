@@ -27,7 +27,7 @@ import static com.example.musicbooru.util.Commons.*;
 @RequestMapping("/api/track")
 public class TrackController {
 
-    private final Logger logger = LoggerFactory.getLogger(TrackController.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(TrackController.class);
     private final TrackService trackService;
 
     @GetMapping("/")
@@ -69,7 +69,7 @@ public class TrackController {
         try {
             Resource resource;
             if(track.get().isHasArtwork()) {
-                Path path = Path.of(ARTWORK + id + ".jpg");
+                Path path = Path.of(ARTWORK + id + ARTWORK_EXTENSION);
                 resource = new UrlResource(path.toUri());
             } else {
                 resource = new ClassPathResource(NO_COVER);

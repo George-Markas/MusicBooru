@@ -27,7 +27,7 @@ public class JaudiotaggerWrapper {
 
     private AudioFile audioFile;
     private Tag tag;
-    private final Logger logger = LoggerFactory.getLogger(JaudiotaggerWrapper.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(JaudiotaggerWrapper.class);
 
     public JaudiotaggerWrapper(File file) {
         try {
@@ -56,7 +56,7 @@ public class JaudiotaggerWrapper {
             byte[] imageData = artwork.getBinaryData();
             try {
                 BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(imageData));
-                ImageIO.write(bufferedImage, "jpg", new File(ARTWORK + id + ".jpg"));
+                ImageIO.write(bufferedImage, "jpg", new File(ARTWORK + id + ARTWORK_EXTENSION));
 
                 // Delete the embedded artwork since we don't need two instances of it
                 this.tag.deleteArtworkField();

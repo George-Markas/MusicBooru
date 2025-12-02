@@ -15,7 +15,7 @@ import java.time.format.DateTimeParseException;
 
 public class HeaderUtils {
 
-    private static final Logger logger = LoggerFactory.getLogger(HeaderUtils.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(HeaderUtils.class);
 
     public static String generateETag(Path path) {
         try {

@@ -20,6 +20,7 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+import static com.example.musicbooru.util.Commons.AUDIO_MIMETYPE;
 import static com.example.musicbooru.util.Commons.LIBRARY;
 
 @AllArgsConstructor
@@ -27,7 +28,7 @@ import static com.example.musicbooru.util.Commons.LIBRARY;
 @RequestMapping("/api/stream")
 public class StreamController {
 
-    private static final Logger logger = LoggerFactory.getLogger(StreamController.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(StreamController.class);
 
     private final TrackService trackService;
 
@@ -105,7 +106,7 @@ public class StreamController {
             // Prepare the resource response
             FileSystemResource resource = new FileSystemResource(filePath.toFile());
             return ResponseEntity.ok()
-                    .contentType(MediaType.parseMediaType(track.get().getMediaType()))
+                    .contentType(MediaType.parseMediaType(AUDIO_MIMETYPE))
                     .contentLength(filePath.toFile().length())
                     . eTag(eTag)
                     .lastModified(lastModified)

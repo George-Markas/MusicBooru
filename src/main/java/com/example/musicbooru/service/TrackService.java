@@ -5,7 +5,6 @@ import com.example.musicbooru.exception.ResourceNotFoundException;
 import com.example.musicbooru.model.Track;
 import com.example.musicbooru.repository.TrackRepository;
 import com.example.musicbooru.util.JaudiotaggerWrapper;
-import com.example.musicbooru.util.MediaUtils;
 import org.jaudiotagger.tag.FieldKey;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,7 +21,7 @@ import static com.example.musicbooru.util.Commons.*;
 @Service
 public class TrackService {
 
-    private final Logger logger = LoggerFactory.getLogger(TrackService.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(TrackService.class);
 
     private final TrackRepository trackRepository;
 
@@ -50,15 +49,13 @@ public class TrackService {
 
         try {
             // Save song as temporary file for metadata extraction
-            String mediaType = MediaUtils.detectMediaType(file);
-            String fileExtension = MediaUtils.getExtension(mediaType);
-            Path tmp = Files.createTempFile(null, fileExtension);
+            Path tmp = Files.createTempFile(null, AUDIO_EXTENSION);
             Files.copy(file.getInputStream(), tmp, StandardCopyOption.REPLACE_EXISTING);
 
             // TODO the wrapper for Jaudiotagger might need a rewrite to make it more "elegant"
             // Construct file name from metadata
             JaudiotaggerWrapper jwrap = new JaudiotaggerWrapper(tmp.toFile());
-            final String fileName = jwrap.constructFileName(fileExtension);
+            final String fileName = jwrap.constructFileName(AUDIO_EXTENSION);
 
             // Make database entry
             Track track = Track.builder()
@@ -68,7 +65,6 @@ public class TrackService {
                     .genre(jwrap.getTag().getFirst(FieldKey.GENRE))
                     .year(jwrap.getTag().getFirst(FieldKey.YEAR))
                     .fileName(fileName)
-                    .mediaType(mediaType)
                     .hasArtwork(false)
                     .build();
             trackRepository.save(track);
@@ -108,7 +104,7 @@ public class TrackService {
         }
 
         try {
-            Files.delete(Paths.get(ARTWORK + track.getId() + ".jpg"));
+            Files.delete(Paths.get(ARTWORK + track.getId() + ARTWORK_EXTENSION));
             logger.info("Deleted artwork for track with ID {}", id);
         } catch(IOException e) {
             logger.error("Could not delete artwork for track with with ID {}; ", id, e);
