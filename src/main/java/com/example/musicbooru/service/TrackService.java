@@ -29,6 +29,10 @@ public class TrackService {
         this.trackRepository = trackRepository;
     }
 
+    public boolean trackExists(String id) {
+        return trackRepository.existsById(id);
+    }
+
     public List<Track> getTracks() {
         return trackRepository.findAll();
     }
@@ -55,7 +59,7 @@ public class TrackService {
             // TODO the wrapper for Jaudiotagger might need a rewrite to make it more "elegant"
             // Construct file name from metadata
             JaudiotaggerWrapper jwrap = new JaudiotaggerWrapper(tmp.toFile());
-            final String fileName = jwrap.constructFileName(AUDIO_EXTENSION);
+            String fileName = jwrap.constructFileName(AUDIO_EXTENSION);
 
             // Make database entry
             Track track = Track.builder()
@@ -65,18 +69,14 @@ public class TrackService {
                     .genre(jwrap.getTag().getFirst(FieldKey.GENRE))
                     .year(jwrap.getTag().getFirst(FieldKey.YEAR))
                     .fileName(fileName)
-                    .hasArtwork(false)
                     .build();
             trackRepository.save(track);
 
             // Extract cover art
-            if(jwrap.extractArtwork(track.getId())) {
-                track.setHasArtwork(true);
-                trackRepository.save(track);
-            }
+            jwrap.extractArtwork(track.getId());
 
             // Move song to the library directory
-            final Path target = Paths.get(LIBRARY + fileName);
+            Path target = Paths.get(LIBRARY + fileName);
             if(Files.exists(target)) {
                 logger.warn("File \"{}\" already exists and will be overwritten", fileName);
             }
@@ -95,6 +95,7 @@ public class TrackService {
             return new ResourceNotFoundException("Could not find track with ID " + id);
         });
 
+        // TODO Rewrite logic so it cleans up leftovers
         try {
             Files.delete(Paths.get(LIBRARY + track.getFileName()));
             logger.info("Deleted audio file for track with ID {}", id);
@@ -103,12 +104,14 @@ public class TrackService {
             throw new GenericException("Could not delete audio file for track with ID " + id);
         }
 
-        try {
-            Files.delete(Paths.get(ARTWORK + track.getId() + ARTWORK_EXTENSION));
-            logger.info("Deleted artwork for track with ID {}", id);
-        } catch(IOException e) {
-            logger.error("Could not delete artwork for track with with ID {}; ", id, e);
-            throw new GenericException("Could not delete artwork for track with ID " + id);
+        if(Files.exists(Path.of(ARTWORK + id + ARTWORK_EXTENSION))) {
+            try {
+                Files.delete(Paths.get(ARTWORK + track.getId() + ARTWORK_EXTENSION));
+                logger.info("Deleted artwork for track with ID {}", id);
+            } catch(IOException e) {
+                logger.error("Could not delete artwork for track with with ID {}; ", id, e);
+                throw new GenericException("Could not delete artwork for track with ID " + id);
+            }
         }
 
         trackRepository.delete(track);

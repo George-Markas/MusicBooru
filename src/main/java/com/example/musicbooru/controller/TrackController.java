@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import lombok.AllArgsConstructor;
 
 import java.net.MalformedURLException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
@@ -60,16 +61,15 @@ public class TrackController {
 
     @GetMapping("/art/{id}")
     public ResponseEntity<Resource> getArtwork(@PathVariable String id) {
-        Optional<Track> track = trackService.getTrackById(id);
-        if(track.isEmpty()) {
-            logger.error("Could not fetch artwork; track with ID {} was not found", id);
-            throw new ResourceNotFoundException("Could not fetch artwork; track with ID " + id + " was not found");
+        if(!trackService.trackExists(id)) {
+            logger.error("Could not fetch artwork; track with ID {} does not exist", id);
+            throw new ResourceNotFoundException("Could not fetch artwork; track with ID " + id + " does not exist");
         }
 
         try {
             Resource resource;
-            if(track.get().isHasArtwork()) {
-                Path path = Path.of(ARTWORK + id + ARTWORK_EXTENSION);
+            Path path = Path.of(ARTWORK + id + ARTWORK_EXTENSION);
+            if(Files.exists(path)) {
                 resource = new UrlResource(path.toUri());
             } else {
                 resource = new ClassPathResource(NO_COVER);

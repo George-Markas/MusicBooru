@@ -50,7 +50,7 @@ public class JaudiotaggerWrapper {
         return this.tag.getFirst(FieldKey.ARTIST) + " - " + this.tag.getFirst(FieldKey.TITLE) + fileExtension;
     }
 
-    public boolean extractArtwork(String id) {
+    public void extractArtwork(String id) {
         Artwork artwork = this.tag.getFirstArtwork();
         if(artwork != null) {
             byte[] imageData = artwork.getBinaryData();
@@ -61,8 +61,6 @@ public class JaudiotaggerWrapper {
                 // Delete the embedded artwork since we don't need two instances of it
                 this.tag.deleteArtworkField();
                 this.audioFile.commit();
-
-                return true;
             } catch(IOException e) {
                 logger.error("Could not read image data", e);
             } catch(CannotWriteException e) {
@@ -71,7 +69,5 @@ public class JaudiotaggerWrapper {
         } else {
             logger.warn("Track with ID {} has no embedded cover art", id);
         }
-
-        return false;
     }
 }

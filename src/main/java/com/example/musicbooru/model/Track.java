@@ -24,5 +24,4 @@ public class Track {
     private String genre;
     private String year;
     private String fileName;
-    private boolean hasArtwork;
 }
