@@ -5,7 +5,7 @@ be added).
 **This project is still very much work in progress.** It was initially conceived for the "Special Topics 
 in Software Engineering" course.
 
-### Build and run
+## Build and run
 MusicBooru has the following dependencies:
 - Java 21
 - Docker
