@@ -4,8 +4,7 @@ import com.example.musicbooru.exception.GenericException;
 import com.example.musicbooru.exception.ResourceNotFoundException;
 import com.example.musicbooru.model.Track;
 import com.example.musicbooru.repository.TrackRepository;
-import com.example.musicbooru.util.JaudiotaggerWrapper;
-import org.jaudiotagger.tag.FieldKey;
+import com.example.musicbooru.util.MetadataUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.slf4j.Logger;
@@ -15,13 +14,14 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static com.example.musicbooru.util.Commons.*;
 
 @Service
 public class TrackService {
 
-    private final Logger logger = LoggerFactory.getLogger(TrackService.class);
+    private final static Logger logger = LoggerFactory.getLogger(TrackService.class);
 
     private final TrackRepository trackRepository;
 
@@ -30,7 +30,7 @@ public class TrackService {
     }
 
     public boolean trackExists(String id) {
-        return trackRepository.existsById(id);
+        return trackRepository.existsById(UUID.fromString(id));
     }
 
     public List<Track> getTracks() {
@@ -38,7 +38,7 @@ public class TrackService {
     }
 
     public Optional<Track> getTrackById(String id) {
-        return trackRepository.findById(id);
+        return trackRepository.findById(UUID.fromString(id));
     }
 
     public void uploadTrack(MultipartFile file) {
@@ -53,34 +53,37 @@ public class TrackService {
 
         try {
             // Save song as temporary file for metadata extraction
-            Path tmp = Files.createTempFile(null, AUDIO_EXTENSION);
-            Files.copy(file.getInputStream(), tmp, StandardCopyOption.REPLACE_EXISTING);
+            Path temp = Files.createTempFile(null, AUDIO_EXTENSION);
+            Files.copy(file.getInputStream(), temp, StandardCopyOption.REPLACE_EXISTING);
 
-            // TODO the wrapper for Jaudiotagger might need a rewrite to make it more "elegant"
-            // Construct file name from metadata
-            JaudiotaggerWrapper jwrap = new JaudiotaggerWrapper(tmp.toFile());
-            String fileName = jwrap.constructFileName(AUDIO_EXTENSION);
+            // Generate filename from metadata
+            MetadataUtils metadataUtils = new MetadataUtils(temp.toFile());
+            String fileName = metadataUtils.generateFileName();
+            if(fileName != null && trackRepository.existsByFileName(fileName)) {
+                logger.warn("Track with filename \"{}\" already exists; using UUID for filename", fileName);
+                fileName = null;
+            }
 
-            // Make database entry
+            // Create database entry
             Track track = Track.builder()
-                    .title(jwrap.getTag().getFirst(FieldKey.TITLE))
-                    .artist(jwrap.getTag().getFirst(FieldKey.ARTIST))
-                    .album(jwrap.getTag().getFirst(FieldKey.ALBUM))
-                    .genre(jwrap.getTag().getFirst(FieldKey.GENRE))
-                    .year(jwrap.getTag().getFirst(FieldKey.YEAR))
+                    .title(metadataUtils.getTitle())
+                    .artist(metadataUtils.getArtist())
+                    .album(metadataUtils.getAlbum())
+                    .genre(metadataUtils.getGenre())
+                    .year(metadataUtils.getYear())
                     .fileName(fileName)
                     .build();
             trackRepository.save(track);
 
             // Extract cover art
-            jwrap.extractArtwork(track.getId());
+            metadataUtils.extractArtwork(String.valueOf(track.getId()));
 
             // Move song to the library directory
-            Path target = Paths.get(LIBRARY + fileName);
+            Path target = Paths.get(LIBRARY + track.getFileName());
             if(Files.exists(target)) {
-                logger.warn("File \"{}\" already exists and will be overwritten", fileName);
+                logger.warn("File \"{}\" already exists and will be overwritten", track.getFileName());
             }
-            Files.move(tmp, target, StandardCopyOption.REPLACE_EXISTING);
+            Files.move(temp, target, StandardCopyOption.REPLACE_EXISTING);
 
             logger.info("Uploaded track with ID {}", track.getId());
         } catch(IOException e) {
@@ -90,12 +93,11 @@ public class TrackService {
     }
 
     public void deleteTrack(String id) {
-        Track track = trackRepository.findById(id).orElseThrow(() -> {
+        Track track = trackRepository.findById(UUID.fromString(id)).orElseThrow(() -> {
             logger.error("Could not find track with ID {}", id);
             return new ResourceNotFoundException("Could not find track with ID " + id);
         });
 
-        // TODO Rewrite logic so it cleans up leftovers
         try {
             Files.delete(Paths.get(LIBRARY + track.getFileName()));
             logger.info("Deleted audio file for track with ID {}", id);

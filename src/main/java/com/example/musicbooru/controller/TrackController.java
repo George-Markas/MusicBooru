@@ -28,7 +28,7 @@ import static com.example.musicbooru.util.Commons.*;
 @RequestMapping("/api/track")
 public class TrackController {
 
-    private final Logger logger = LoggerFactory.getLogger(TrackController.class);
+    private final static Logger logger = LoggerFactory.getLogger(TrackController.class);
     private final TrackService trackService;
 
     @GetMapping("/")
@@ -43,6 +43,7 @@ public class TrackController {
         if(track.isPresent()) {
             return ResponseEntity.ok(track.get());
         }
+
         logger.error("Could not find track with ID {}", id);
         throw new ResourceNotFoundException("Could not find track with ID " + id);
     }
@@ -62,8 +63,8 @@ public class TrackController {
     @GetMapping("/art/{id}")
     public ResponseEntity<Resource> getArtwork(@PathVariable String id) {
         if(!trackService.trackExists(id)) {
-            logger.error("Could not fetch artwork; track with ID {} does not exist", id);
-            throw new ResourceNotFoundException("Could not fetch artwork; track with ID " + id + " does not exist");
+            logger.error("Could not fetch artwork; track with ID {} not found", id);
+            throw new ResourceNotFoundException("Could not fetch artwork; track with ID " + id + " not found");
         }
 
         try {

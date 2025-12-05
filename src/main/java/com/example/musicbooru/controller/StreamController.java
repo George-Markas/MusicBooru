@@ -28,7 +28,7 @@ import static com.example.musicbooru.util.Commons.LIBRARY;
 @RequestMapping("/api/stream")
 public class StreamController {
 
-    private static final Logger logger = LoggerFactory.getLogger(StreamController.class);
+    private final static Logger logger = LoggerFactory.getLogger(StreamController.class);
 
     private final TrackService trackService;
 

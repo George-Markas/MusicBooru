@@ -6,6 +6,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
+import static com.example.musicbooru.util.Commons.AUDIO_EXTENSION;
+
 @Entity
 @Table(name = "track")
 @Builder
@@ -14,14 +18,20 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Track {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
+    private UUID id;
 
-    @Column(unique = true)
     private String title;
     private String artist;
     private String album;
     private String genre;
     private String year;
+
+    @Column(unique = true)
     private String fileName;
+
+    @PrePersist
+    public void prePersist() {
+        if(this.id == null) this.id = UUID.randomUUID();
+        if(this.fileName == null) this.fileName = this.id + AUDIO_EXTENSION;
+    }
 }
