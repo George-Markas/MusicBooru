@@ -21,22 +21,23 @@ public class HeaderUtils {
         try {
             BasicFileAttributes attrs = Files.readAttributes(path, BasicFileAttributes.class);
             return String.format("\"%d-%d\"", attrs.lastModifiedTime().toMillis(), attrs.size());
-        } catch(IOException e) {
+        } catch (IOException e) {
             logger.error("Could not read file attributes", e);
             throw new GenericException("Could not read file attributes");
         }
     }
 
     public static boolean matches(String etag, String header) {
-        if(header == null || header.isBlank()) {
+        if (header == null || header.isBlank()) {
             return false;
         }
 
-        for(String eTagValue : header.split(",")) {
+        for (String eTagValue : header.split(",")) {
             String current = eTagValue.trim();
-            if("*".equals(current)) return true; // Matches any resource
-            if(current.startsWith("W/")) current = current.substring(2).trim(); // Accept weak entity tags
-            if(current.equals(etag)) return true; // Matches specified ETag
+            if ("*".equals(current)) return true; // Matches any resource
+            if (current.startsWith("W/"))
+                current = current.substring(2).trim(); // Accept weak entity tags
+            if (current.equals(etag)) return true; // Matches specified ETag
         }
 
         return false;
@@ -46,7 +47,7 @@ public class HeaderUtils {
         try {
             DateTimeFormatter formatter = DateTimeFormatter.RFC_1123_DATE_TIME;
             return ZonedDateTime.parse(httpDate, formatter).toInstant();
-        } catch(DateTimeParseException e) {
+        } catch (DateTimeParseException e) {
             logger.error("Could not parse date string", e);
             throw new GenericException("Could not parse date string");
         }

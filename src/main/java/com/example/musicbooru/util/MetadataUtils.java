@@ -30,7 +30,7 @@ public class MetadataUtils {
         try {
             this.audioFile = AudioFileIO.read(file);
             this.tag = audioFile.getTag();
-        } catch(Exception e) {
+        } catch (Exception e) {
             logger.error("Could not read the tag contained in the given file", e);
             throw new GenericException("Could not read the tag contained in the given file");
         }
@@ -41,13 +41,13 @@ public class MetadataUtils {
             String artist = this.tag.getFirst(FieldKey.ARTIST);
             String title = this.tag.getFirst(FieldKey.TITLE);
 
-            if(artist.isBlank() || title.isBlank()) {
+            if (artist.isBlank() || title.isBlank()) {
                 logger.warn("Field is blank; using UUID for filename");
                 return null;
             }
 
             return String.format("%s - %s%s", artist, title, AUDIO_EXTENSION);
-        } catch(KeyNotFoundException e) {
+        } catch (KeyNotFoundException e) {
             logger.warn("Field does not exist; using UUID for filename", e);
             return null;
         }
@@ -55,7 +55,7 @@ public class MetadataUtils {
 
     public void extractArtwork(String id) {
         Artwork artwork = this.tag.getFirstArtwork();
-        if(artwork != null) {
+        if (artwork != null) {
             byte[] imageData = artwork.getBinaryData();
             try {
                 BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(imageData));
@@ -64,9 +64,9 @@ public class MetadataUtils {
                 // Delete the embedded artwork since we don't need two instances of it
                 this.tag.deleteArtworkField();
                 this.audioFile.commit();
-            } catch(IOException e) {
+            } catch (IOException e) {
                 logger.error("Could not read image data", e);
-            } catch(CannotWriteException e) {
+            } catch (CannotWriteException e) {
                 logger.error("Could not write to file", e);
             }
         } else {
@@ -77,7 +77,7 @@ public class MetadataUtils {
     public String getTitle() {
         try {
             return this.tag.getFirst(FieldKey.TITLE);
-        } catch(KeyNotFoundException e) {
+        } catch (KeyNotFoundException e) {
             logger.error("Field does not exist", e);
             return "";
         }
@@ -86,7 +86,7 @@ public class MetadataUtils {
     public String getArtist() {
         try {
             return this.tag.getFirst(FieldKey.ARTIST);
-        } catch(KeyNotFoundException e) {
+        } catch (KeyNotFoundException e) {
             logger.error("Field does not exist", e);
             return "";
         }
@@ -95,7 +95,7 @@ public class MetadataUtils {
     public String getAlbum() {
         try {
             return this.tag.getFirst(FieldKey.ALBUM);
-        }  catch(KeyNotFoundException e) {
+        } catch (KeyNotFoundException e) {
             logger.error("Field does not exist", e);
             return "";
         }
@@ -104,7 +104,7 @@ public class MetadataUtils {
     public String getGenre() {
         try {
             return this.tag.getFirst(FieldKey.GENRE);
-        }  catch(KeyNotFoundException e) {
+        } catch (KeyNotFoundException e) {
             logger.error("Field does not exist", e);
             return "";
         }
@@ -113,7 +113,7 @@ public class MetadataUtils {
     public String getYear() {
         try {
             return this.tag.getFirst(FieldKey.YEAR);
-        }  catch(KeyNotFoundException e) {
+        } catch (KeyNotFoundException e) {
             logger.error("Field does not exist", e);
             return "";
         }

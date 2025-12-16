@@ -46,7 +46,7 @@ public class TrackService {
             // Create directories for the audio files and accompanying artwork
             Files.createDirectories(Path.of(LIBRARY));
             Files.createDirectories(Path.of(ARTWORK));
-        } catch(IOException e) {
+        } catch (IOException e) {
             logger.error("Could not create directory", e);
             throw new GenericException("Could not create directory");
         }
@@ -59,7 +59,7 @@ public class TrackService {
             // Generate filename from metadata
             MetadataUtils metadataUtils = new MetadataUtils(temp.toFile());
             String fileName = metadataUtils.generateFileName();
-            if(fileName != null && trackRepository.existsByFileName(fileName)) {
+            if (fileName != null && trackRepository.existsByFileName(fileName)) {
                 logger.warn("Track with filename \"{}\" already exists; using UUID for filename", fileName);
                 fileName = null;
             }
@@ -80,13 +80,13 @@ public class TrackService {
 
             // Move song to the library directory
             Path target = Paths.get(LIBRARY + track.getFileName());
-            if(Files.exists(target)) {
+            if (Files.exists(target)) {
                 logger.warn("File \"{}\" already exists and will be overwritten", track.getFileName());
             }
             Files.move(temp, target, StandardCopyOption.REPLACE_EXISTING);
 
             logger.info("Uploaded track with ID {}", track.getId());
-        } catch(IOException e) {
+        } catch (IOException e) {
             logger.error("An unexpected error occurred", e);
             throw new GenericException("An unexpected error occurred");
         }
@@ -101,16 +101,16 @@ public class TrackService {
         try {
             Files.delete(Paths.get(LIBRARY + track.getFileName()));
             logger.info("Deleted audio file for track with ID {}", id);
-        } catch(IOException e) {
+        } catch (IOException e) {
             logger.error("Could not delete audio file for track with ID {}", id, e);
             throw new GenericException("Could not delete audio file for track with ID " + id);
         }
 
-        if(Files.exists(Path.of(ARTWORK + id + ARTWORK_EXTENSION))) {
+        if (Files.exists(Path.of(ARTWORK + id + ARTWORK_EXTENSION))) {
             try {
                 Files.delete(Paths.get(ARTWORK + track.getId() + ARTWORK_EXTENSION));
                 logger.info("Deleted artwork for track with ID {}", id);
-            } catch(IOException e) {
+            } catch (IOException e) {
                 logger.error("Could not delete artwork for track with with ID {}; ", id, e);
                 throw new GenericException("Could not delete artwork for track with ID " + id);
             }

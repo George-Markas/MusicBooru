@@ -14,7 +14,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "_user") // The underscore prefix is required because "user" is reserved in postgres
+@Table(name = "_user")
+// The underscore prefix is required because "user" is reserved in postgres
 public class User implements UserDetails {
     @Id
     @GeneratedValue

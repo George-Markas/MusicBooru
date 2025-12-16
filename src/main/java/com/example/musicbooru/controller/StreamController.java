@@ -41,7 +41,7 @@ public class StreamController {
             @RequestHeader(value = HttpHeaders.IF_UNMODIFIED_SINCE, required = false) String ifUnmodifiedSince
     ) {
         Optional<Track> track = trackService.getTrackById(id);
-        if(track.isEmpty()) {
+        if (track.isEmpty()) {
             logger.error("Could not find track with ID {}", id);
             throw new ResourceNotFoundException("Could not find track with ID " + id);
         }
@@ -52,7 +52,7 @@ public class StreamController {
         }).getFileName();
 
         Path filePath = Path.of(LIBRARY + fileName);
-        if(Files.notExists(filePath)) {
+        if (Files.notExists(filePath)) {
             logger.error("Could not find audio file with path {} for track with ID {}", filePath, id);
             throw new ResourceNotFoundException("Could not find audio file with path" + filePath + "for track with ID " + id);
         }
@@ -67,7 +67,7 @@ public class StreamController {
             // --- Validate request headers for caching ---
 
             // If-None-Match header should contain "*" or ETag. If so, return 304
-            if(ifNoneMatch != null && HeaderUtils.matches(ifNoneMatch, eTag)) {
+            if (ifNoneMatch != null && HeaderUtils.matches(ifNoneMatch, eTag)) {
                 return ResponseEntity.status(HttpStatus.NOT_MODIFIED)
                         .eTag(eTag)
                         .lastModified(lastModified)
@@ -76,9 +76,9 @@ public class StreamController {
 
             // If-Modified-Since header should be greater than lastModified. If so, return 304
             // This header is ignored if any If-None-Match header is specified
-            if(ifNoneMatch == null && ifModifiedSince != null) {
+            if (ifNoneMatch == null && ifModifiedSince != null) {
                 Instant clientTimestamp = HeaderUtils.parseHttpDate(ifModifiedSince);
-                if(clientTimestamp.isAfter(lastModified)) {
+                if (clientTimestamp.isAfter(lastModified)) {
                     return ResponseEntity.status(HttpStatus.NOT_MODIFIED)
                             .eTag(eTag)
                             .lastModified(lastModified)
@@ -89,15 +89,15 @@ public class StreamController {
             // --- Validate request headers for resume ---
 
             // If-Match header should contain "*" or ETag. If not, return 412
-            if(ifMatch != null && !HeaderUtils.matches(ifMatch, eTag)) {
+            if (ifMatch != null && !HeaderUtils.matches(ifMatch, eTag)) {
                 return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).build();
             }
 
             // If-Unmodified-Since header should be greater than lastModified. If not, return 412
-            if(ifMatch == null && ifUnmodifiedSince != null) {
+            if (ifMatch == null && ifUnmodifiedSince != null) {
                 Instant clientTimestamp = HeaderUtils.parseHttpDate(ifUnmodifiedSince);
-                if(clientTimestamp.isBefore(lastModified)) {
-                   return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).build();
+                if (clientTimestamp.isBefore(lastModified)) {
+                    return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).build();
                 }
             }
 
@@ -108,13 +108,13 @@ public class StreamController {
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(AUDIO_MIMETYPE))
                     .contentLength(filePath.toFile().length())
-                    . eTag(eTag)
+                    .eTag(eTag)
                     .lastModified(lastModified)
                     .cacheControl(CacheControl.maxAge(7, TimeUnit.DAYS).cachePublic())
                     .header(HttpHeaders.ACCEPT_RANGES, "bytes")
                     .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + fileName + "\"")
                     .body(resource);
-        } catch(IOException e) {
+        } catch (IOException e) {
             logger.error("An unexpected error occurred", e);
             throw new GenericException("An unexpected error occurred");
         }

@@ -31,7 +31,7 @@ public class Track {
 
     @PrePersist
     public void prePersist() {
-        if(this.id == null) this.id = UUID.randomUUID();
-        if(this.fileName == null) this.fileName = this.id + AUDIO_EXTENSION;
+        if (this.id == null) this.id = UUID.randomUUID();
+        if (this.fileName == null) this.fileName = this.id + AUDIO_EXTENSION;
     }
 }

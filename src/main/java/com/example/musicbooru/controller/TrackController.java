@@ -40,7 +40,7 @@ public class TrackController {
     public ResponseEntity<Track> getTrack(@PathVariable String id) {
         Optional<Track> track = trackService.getTrackById(id);
 
-        if(track.isPresent()) {
+        if (track.isPresent()) {
             return ResponseEntity.ok(track.get());
         }
 
@@ -62,7 +62,7 @@ public class TrackController {
 
     @GetMapping("/art/{id}")
     public ResponseEntity<Resource> getArtwork(@PathVariable String id) {
-        if(!trackService.trackExists(id)) {
+        if (!trackService.trackExists(id)) {
             logger.error("Could not fetch artwork; track with ID {} not found", id);
             throw new ResourceNotFoundException("Could not fetch artwork; track with ID " + id + " not found");
         }
@@ -70,7 +70,7 @@ public class TrackController {
         try {
             Resource resource;
             Path path = Path.of(ARTWORK + id + ARTWORK_EXTENSION);
-            if(Files.exists(path)) {
+            if (Files.exists(path)) {
                 resource = new UrlResource(path.toUri());
             } else {
                 resource = new ClassPathResource(NO_COVER);
@@ -80,7 +80,7 @@ public class TrackController {
             return ResponseEntity.ok()
                     .contentType(MediaType.IMAGE_JPEG)
                     .body(resource);
-        } catch(MalformedURLException e) {
+        } catch (MalformedURLException e) {
             logger.error("Could not fetch artwork", e);
             throw new GenericException("Could not fetch artwork");
         }

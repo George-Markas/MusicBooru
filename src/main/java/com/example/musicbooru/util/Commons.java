@@ -1,7 +1,8 @@
 package com.example.musicbooru.util;
 
 public class Commons {
-    private Commons() {} // No need to instantiate, hide the constructor
+    private Commons() {
+    } // No need to instantiate, hide the constructor
 
     public final static String LIBRARY = "./library/";
     public final static String ARTWORK = "./artwork/";

@@ -31,7 +31,7 @@ public class AppInitializer implements CommandLineRunner {
     }
 
     public void createAdmin() {
-        if(!userRepository.existsByUsername("admin")) {
+        if (!userRepository.existsByUsername("admin")) {
             User admin = User.builder()
                     .username(adminUsername)
                     .password(passwordEncoder.encode(adminPassword))
