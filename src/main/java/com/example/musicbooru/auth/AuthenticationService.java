@@ -42,9 +42,11 @@ public class AuthenticationService {
                 .build();
 
         repository.save(user);
-        var jwtToken = jwtService.generateToken(user);
+        String jwtToken = jwtService.generateToken(user);
+        String jwtCookieString = jwtService.cookieFromToken(jwtToken);
+
         return AuthenticationResponse.builder()
-                .token(jwtToken)
+                .cookieString(jwtCookieString)
                 .build();
     }
 
@@ -59,9 +61,11 @@ public class AuthenticationService {
         var userAuth = authViewRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException(request.getUsername()));
 
-        var jwtToken = jwtService.generateToken(userAuth);
+        String jwtToken = jwtService.generateToken(userAuth);
+        String jwtCookieString = jwtService.cookieFromToken(jwtToken);
+
         return AuthenticationResponse.builder()
-                .token(jwtToken)
+                .cookieString(jwtCookieString)
                 .build();
     }
 }

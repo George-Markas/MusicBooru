@@ -26,17 +26,21 @@ public class SecurityConfig {
         this.authenticationProvider = authenticationProvider;
     }
 
+    // TODO: CONFIGURATION METHOD FEELS JANK, REWRITE AT A LATER TIME
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(@NonNull CorsRegistry registry) {
-                registry.addMapping("/**").allowedMethods(
+                registry.addMapping("/**")
+                        .allowedMethods(
                         "GET",
                         "POST",
                         "PUT",
-                        "DELETE"
-                ).allowedOrigins("**");
+                        "DELETE")
+                        .allowCredentials(true) // NEEDED FOR COOKIES
+                        .allowedOrigins("**");
+
             }
         };
     }
@@ -45,16 +49,16 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(req -> req
-                                .requestMatchers("/api/auth/register").hasAuthority(Role.ADMIN.name())
-                                .requestMatchers("/api/track/upload").hasAuthority(Role.ADMIN.name())
-                                .requestMatchers("/api/track/delete").hasAuthority(Role.ADMIN.name())
-                                .requestMatchers("/api/track/art/**").permitAll()
-                                .requestMatchers("/api/track/**").permitAll()
-                                .requestMatchers("/api/auth/authenticate").permitAll()
-                                .anyRequest().authenticated()
+//                                .requestMatchers("/api/auth/register").hasAuthority(Role.ADMIN.name())
+//                                .requestMatchers("/api/track/upload").hasAuthority(Role.ADMIN.name())
+//                                .requestMatchers("/api/track/delete").hasAuthority(Role.ADMIN.name())
+//                                .requestMatchers("/api/track/art/**").permitAll()
+//                                .requestMatchers("/api/track/**").permitAll()
+//                                .requestMatchers("/api/auth/authenticate").permitAll()
+//                                .anyRequest().authenticated()
 
                         // Temporary; for development
-                        // .anyRequest().permitAll()
+                         .anyRequest().permitAll()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)

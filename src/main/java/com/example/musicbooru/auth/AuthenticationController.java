@@ -1,5 +1,6 @@
 package com.example.musicbooru.auth;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,7 +23,10 @@ public class AuthenticationController {
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<AuthenticationResponse> register(@RequestBody AuthenticationRequest request) {
-        return ResponseEntity.ok(service.authenticate(request));
+    public ResponseEntity<?> authenticate(@RequestBody AuthenticationRequest request) {
+        AuthenticationResponse authRes = service.authenticate(request);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, authRes.getCookieString())
+                .body("Login Success.");
     }
 }
