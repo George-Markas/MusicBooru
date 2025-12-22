@@ -71,7 +71,7 @@ public class MetadataUtils {
                 logger.error("Could not write to file", e);
             }
         } else {
-            logger.warn("Track with ID {} has no embedded cover art", id);
+            logger.warn("Track '{}' has no embedded cover art", id);
         }
     }
 

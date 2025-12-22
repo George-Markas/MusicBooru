@@ -44,8 +44,8 @@ public class TrackController {
             return ResponseEntity.ok(track.get());
         }
 
-        logger.error("Could not find track with ID {}", id);
-        throw new ResourceNotFoundException("Could not find track with ID " + id);
+        logger.error("Could not find track '{}'", id);
+        throw new ResourceNotFoundException("Could not find track '" + id + "'");
     }
 
     @PostMapping("/upload")
@@ -63,8 +63,8 @@ public class TrackController {
     @GetMapping("/art/{id}")
     public ResponseEntity<Resource> getArtwork(@PathVariable String id) {
         if (!trackService.trackExists(id)) {
-            logger.error("Could not fetch artwork; track with ID {} not found", id);
-            throw new ResourceNotFoundException("Could not fetch artwork; track with ID " + id + " not found");
+            logger.error("Could not fetch artwork; track '{}' not found", id);
+            throw new ResourceNotFoundException("Could not fetch artwork; track '" + id + "' not found");
         }
 
         try {
@@ -74,7 +74,7 @@ public class TrackController {
                 resource = new UrlResource(path.toUri());
             } else {
                 resource = new ClassPathResource(NO_COVER);
-                logger.warn("Could not find artwork for track with ID {}; using placeholder", id);
+                logger.warn("Could not find artwork for track '{}'; using placeholder", id);
             }
 
             return ResponseEntity.ok()

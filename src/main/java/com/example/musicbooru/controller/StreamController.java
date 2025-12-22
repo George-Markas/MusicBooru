@@ -42,31 +42,31 @@ public class StreamController {
     ) {
         Optional<Track> track = trackService.getTrackById(id);
         if (track.isEmpty()) {
-            logger.error("Could not find track with ID {}", id);
-            throw new ResourceNotFoundException("Could not find track with ID " + id);
+            logger.error("Could not find track '{}'", id);
+            throw new ResourceNotFoundException("Could not find track '" + id + "'");
         }
 
         String fileName = track.orElseThrow(() -> {
-            logger.error("Could not get filename for track with ID {}", id);
-            return new ResourceNotFoundException("Could not get filename for track with ID " + id);
+            logger.error("Could not get filename for track '{}'", id);
+            return new ResourceNotFoundException("Could not get filename for track '" + id + "'");
         }).getFileName();
 
         Path filePath = Path.of(LIBRARY + fileName);
         if (Files.notExists(filePath)) {
-            logger.error("Could not find audio file with path {} for track with ID {}", filePath, id);
-            throw new ResourceNotFoundException("Could not find audio file with path" + filePath + "for track with ID " + id);
+            logger.error("Could not find audio file with path {} for track '{}'", filePath, id);
+            throw new ResourceNotFoundException("Could not find audio file with path" + filePath + "for track '" + id + "'");
         }
 
         try {
             // We generate the ETag from file metadata as opposed to something like hashing the file
-            // because we're dealing with relatively large files (30 - 100 MB)
+            // because we're dealing with relatively large files (30 - 100 MB).
             String eTag = HeaderUtils.generateETag(filePath);
             Instant lastModified = Files.getLastModifiedTime(filePath).toInstant();
 
 
             // --- Validate request headers for caching ---
 
-            // If-None-Match header should contain "*" or ETag. If so, return 304
+            // If-None-Match header should contain "*" or ETag. If so, return 304.
             if (ifNoneMatch != null && HeaderUtils.matches(ifNoneMatch, eTag)) {
                 return ResponseEntity.status(HttpStatus.NOT_MODIFIED)
                         .eTag(eTag)
@@ -74,8 +74,8 @@ public class StreamController {
                         .build();
             }
 
-            // If-Modified-Since header should be greater than lastModified. If so, return 304
-            // This header is ignored if any If-None-Match header is specified
+            // If-Modified-Since header should be greater than lastModified. If so, return 304.
+            // This header is ignored if any If-None-Match header is specified.
             if (ifNoneMatch == null && ifModifiedSince != null) {
                 Instant clientTimestamp = HeaderUtils.parseHttpDate(ifModifiedSince);
                 if (clientTimestamp.isAfter(lastModified)) {
@@ -88,12 +88,12 @@ public class StreamController {
 
             // --- Validate request headers for resume ---
 
-            // If-Match header should contain "*" or ETag. If not, return 412
+            // If-Match header should contain "*" or ETag. If not, return 412.
             if (ifMatch != null && !HeaderUtils.matches(ifMatch, eTag)) {
                 return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).build();
             }
 
-            // If-Unmodified-Since header should be greater than lastModified. If not, return 412
+            // If-Unmodified-Since header should be greater than lastModified. If not, return 412.
             if (ifMatch == null && ifUnmodifiedSince != null) {
                 Instant clientTimestamp = HeaderUtils.parseHttpDate(ifUnmodifiedSince);
                 if (clientTimestamp.isBefore(lastModified)) {
@@ -103,7 +103,7 @@ public class StreamController {
 
             // --- Content phase ---
 
-            // Prepare the resource response
+            // Prepare the resource response.
             FileSystemResource resource = new FileSystemResource(filePath.toFile());
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(AUDIO_MIMETYPE))

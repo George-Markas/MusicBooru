@@ -85,7 +85,7 @@ public class TrackService {
             }
             Files.move(temp, target, StandardCopyOption.REPLACE_EXISTING);
 
-            logger.info("Uploaded track with ID {}", track.getId());
+            logger.info("Uploaded track '{}'", track.getId());
         } catch (IOException e) {
             logger.error("An unexpected error occurred", e);
             throw new GenericException("An unexpected error occurred");
@@ -94,29 +94,29 @@ public class TrackService {
 
     public void deleteTrack(String id) {
         Track track = trackRepository.findById(UUID.fromString(id)).orElseThrow(() -> {
-            logger.error("Could not find track with ID {}", id);
-            return new ResourceNotFoundException("Could not find track with ID " + id);
+            logger.error("Could not find track '{}'", id);
+            return new ResourceNotFoundException("Could not find track '" + id + "'");
         });
 
         try {
             Files.delete(Paths.get(LIBRARY + track.getFileName()));
-            logger.info("Deleted audio file for track with ID {}", id);
+            logger.info("Deleted audio file for track '{}'", id);
         } catch (IOException e) {
-            logger.error("Could not delete audio file for track with ID {}", id, e);
-            throw new GenericException("Could not delete audio file for track with ID " + id);
+            logger.error("Could not delete audio file for track '{}'", id, e);
+            throw new GenericException("Could not delete audio file for track '" + id + "'");
         }
 
         if (Files.exists(Path.of(ARTWORK + id + ARTWORK_EXTENSION))) {
             try {
                 Files.delete(Paths.get(ARTWORK + track.getId() + ARTWORK_EXTENSION));
-                logger.info("Deleted artwork for track with ID {}", id);
+                logger.info("Deleted artwork for track '{}'", id);
             } catch (IOException e) {
-                logger.error("Could not delete artwork for track with with ID {}; ", id, e);
-                throw new GenericException("Could not delete artwork for track with ID " + id);
+                logger.error("Could not delete artwork for track '{}'; ", id, e);
+                throw new GenericException("Could not delete artwork for track '" + id + "'");
             }
         }
 
         trackRepository.delete(track);
-        logger.info("Deleted database entry for track with ID {}", id);
+        logger.info("Deleted database entry for track '{}'", id);
     }
 }
