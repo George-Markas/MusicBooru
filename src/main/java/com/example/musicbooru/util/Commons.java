@@ -12,4 +12,6 @@ public class Commons {
     public final static String ARTWORK_EXTENSION = ".jpg";
 
     public static final String AUDIO_MIMETYPE = "audio/mp4";
+
+    public static final Integer cookieLifespan = 900;
 }

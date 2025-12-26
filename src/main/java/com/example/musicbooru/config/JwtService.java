@@ -4,12 +4,17 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -41,7 +46,6 @@ public class JwtService {
                 .getPayload();
     }
 
-    // ???wtf???
     public String generateToken(UserDetails userDetails) {
         return generateToken(new HashMap<>(), userDetails);
     }
@@ -60,20 +64,31 @@ public class JwtService {
                 .compact();
     }
 
-    public String cookieFromToken(String jwtToken) {
+    public String cookieFromToken(String jwtToken, int ageMS) {
         ResponseCookie jwtCookie = ResponseCookie.from("jwt", jwtToken)
                 .httpOnly(true)
                 .path("/")
-                .maxAge(900) // 15 minutes in seconds
+                .maxAge(ageMS)
                 .sameSite("Strict")
                 .build();
 
         return jwtCookie.toString();
     }
 
-//    public String extractJwtFromCookie() {
-//
-//    }
+    public String extractJwtFromCookie(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+
+        if (cookies == null) { return null; }
+        return Arrays.stream(cookies)
+                .filter(cookie -> "jwt".equals(cookie.getName()))
+                .map(Cookie::getValue)
+                .findFirst()
+                .orElse(null);
+    }
+
+    public String logoutCookie() {
+        return cookieFromToken("", 0);
+    }
 
     private SecretKey getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
@@ -88,6 +103,5 @@ public class JwtService {
     private boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
-
 
 }

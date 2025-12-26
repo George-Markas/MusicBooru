@@ -18,8 +18,11 @@ public class AuthenticationController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<AuthenticationResponse> register(@RequestBody RegisterRequest request) {
-        return ResponseEntity.ok(service.register(request));
+    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
+        AuthenticationResponse authRes = service.register(request);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, authRes.getCookieString())
+                .body("Registered and logged in.");
     }
 
     @PostMapping("/authenticate")
@@ -29,4 +32,13 @@ public class AuthenticationController {
                 .header(HttpHeaders.SET_COOKIE, authRes.getCookieString())
                 .body("Login Success.");
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(){
+        AuthenticationResponse authRes = service.logout();
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, authRes.getCookieString())
+                .body("Cookie purged.");
+    }
+
 }
