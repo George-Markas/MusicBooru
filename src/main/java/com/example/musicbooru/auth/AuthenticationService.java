@@ -5,6 +5,7 @@ import com.example.musicbooru.config.JwtService;
 import com.example.musicbooru.model.Role;
 import com.example.musicbooru.model.User;
 
+import com.example.musicbooru.model.UserAuthView;
 import com.example.musicbooru.repository.UserRepository;
 import com.example.musicbooru.repository.UserAuthViewRepository;
 
@@ -15,11 +16,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import org.springframework.stereotype.Service;
 
-import static com.example.musicbooru.util.Commons.cookieLifespan;
-
 @Service
 public class AuthenticationService {
-
+    
+    private static final int COOKIE_LIFESPAN = 900;
+    
     private final UserRepository repository;
     private final UserAuthViewRepository authViewRepository;
     private final PasswordEncoder passwordEncoder;
@@ -49,7 +50,7 @@ public class AuthenticationService {
 
         repository.save(user);
         String jwtToken = jwtService.generateToken(user);
-        String jwtCookieString = jwtService.cookieFromToken(jwtToken, cookieLifespan);
+        String jwtCookieString = jwtService.cookieFromToken(jwtToken, COOKIE_LIFESPAN);
         return AuthenticationResponse.builder()
                 .cookieString(jwtCookieString)
                 .build();
@@ -63,11 +64,11 @@ public class AuthenticationService {
                 )
         );
 
-        var userAuth = authViewRepository.findByUsername(request.getUsername())
+        UserAuthView userAuth = authViewRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException(request.getUsername()));
 
         String jwtToken = jwtService.generateToken(userAuth);
-        String jwtCookieString = jwtService.cookieFromToken(jwtToken, cookieLifespan);
+        String jwtCookieString = jwtService.cookieFromToken(jwtToken, COOKIE_LIFESPAN);
 
         return AuthenticationResponse.builder()
                 .cookieString(jwtCookieString)

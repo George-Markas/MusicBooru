@@ -35,7 +35,9 @@ public class JwtService {
         return claimResolver.apply(claims);
     }
 
-    public Date extractExpiration(String token) { return extractClaim(token, Claims::getExpiration); }
+    public Date extractExpiration(String token) {
+        return extractClaim(token, Claims::getExpiration);
+    }
 
     private Claims extractAllClaims(String token) {
         return Jwts
@@ -78,7 +80,8 @@ public class JwtService {
     public String extractJwtFromCookie(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
 
-        if (cookies == null) { return null; }
+        if (cookies == null) return null;
+
         return Arrays.stream(cookies)
                 .filter(cookie -> "jwt".equals(cookie.getName()))
                 .map(Cookie::getValue)
@@ -103,5 +106,4 @@ public class JwtService {
     private boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
-
 }

@@ -22,7 +22,7 @@ public class AuthenticationController {
         AuthenticationResponse authRes = service.register(request);
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, authRes.getCookieString())
-                .body("Registered and logged in.");
+                .body("Registered and logged in");
     }
 
     @PostMapping("/authenticate")
@@ -30,7 +30,7 @@ public class AuthenticationController {
         AuthenticationResponse authRes = service.authenticate(request);
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, authRes.getCookieString())
-                .body("Login Success.");
+                .body("Login success");
     }
 
     @PostMapping("/logout")
@@ -38,7 +38,7 @@ public class AuthenticationController {
         AuthenticationResponse authRes = service.logout();
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, authRes.getCookieString())
-                .body("Cookie purged.");
+                .body("Cookie purged");
     }
 
 }

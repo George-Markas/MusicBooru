@@ -26,7 +26,7 @@ public class SecurityConfig {
         this.authenticationProvider = authenticationProvider;
     }
 
-    // TODO: CONFIGURATION METHOD FEELS JANK, REWRITE AT A LATER TIME
+    // TODO Configuration method feels janky, rewrite at some point
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
@@ -34,11 +34,11 @@ public class SecurityConfig {
             public void addCorsMappings(@NonNull CorsRegistry registry) {
                 registry.addMapping("/**")
                         .allowedMethods(
-                        "GET",
-                        "POST",
-                        "PUT",
-                        "DELETE")
-                        .allowCredentials(true) // NEEDED FOR COOKIES
+                                "GET",
+                                "POST",
+                                "PUT",
+                                "DELETE")
+                        .allowCredentials(true) // Needed for cookies
                         .allowedOrigins("**");
 
             }
@@ -57,8 +57,8 @@ public class SecurityConfig {
 //                                .requestMatchers("/api/auth/authenticate").permitAll()
 //                                .anyRequest().authenticated()
 
-                        // Temporary; for development
-                         .anyRequest().permitAll()
+                                // Temporary; for development
+                                .anyRequest().permitAll()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
