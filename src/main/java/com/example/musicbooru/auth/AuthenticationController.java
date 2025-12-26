@@ -20,25 +20,25 @@ public class AuthenticationController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
         AuthenticationResponse authRes = service.register(request);
-        return ResponseEntity.ok()
+        return ResponseEntity.status(authRes.getStatusCode())
                 .header(HttpHeaders.SET_COOKIE, authRes.getCookieString())
-                .body("Registered and logged in");
+                .body(authRes);
     }
 
     @PostMapping("/authenticate")
     public ResponseEntity<?> authenticate(@RequestBody AuthenticationRequest request) {
         AuthenticationResponse authRes = service.authenticate(request);
-        return ResponseEntity.ok()
+        return ResponseEntity.status(authRes.getStatusCode())
                 .header(HttpHeaders.SET_COOKIE, authRes.getCookieString())
-                .body("Login success");
+                .body(authRes);
     }
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(){
         AuthenticationResponse authRes = service.logout();
-        return ResponseEntity.ok()
+        return ResponseEntity.status(authRes.getStatusCode())
                 .header(HttpHeaders.SET_COOKIE, authRes.getCookieString())
-                .body("Cookie purged");
+                .body(authRes);
     }
 
 }

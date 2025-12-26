@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
@@ -19,7 +20,7 @@ import java.util.List;
 @Subselect("SELECT id, username, password, role FROM _user")
 public class UserAuthView implements UserDetails {
     @Id
-    private Integer id;
+    private UUID id;
 
     @Column(name = "username")
     private String username;

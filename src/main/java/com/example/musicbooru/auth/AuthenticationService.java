@@ -2,6 +2,7 @@ package com.example.musicbooru.auth;
 
 import com.example.musicbooru.config.JwtService;
 
+import com.example.musicbooru.exception.GenericException;
 import com.example.musicbooru.model.Role;
 import com.example.musicbooru.model.User;
 
@@ -9,12 +10,18 @@ import com.example.musicbooru.model.UserAuthView;
 import com.example.musicbooru.repository.UserRepository;
 import com.example.musicbooru.repository.UserAuthViewRepository;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class AuthenticationService {
@@ -26,6 +33,8 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+
+    private final static Logger logger = LoggerFactory.getLogger(AuthenticationService.class);
 
     public AuthenticationService(
             UserRepository userRepository,
@@ -48,30 +57,48 @@ public class AuthenticationService {
                 .role(Role.USER)
                 .build();
 
+        if (repository.existsByUsername(user.getUsername())) {
+            logger.error("User registration failed; Conflicting usernames.");
+            throw new GenericException("Username already in use!", HttpStatus.CONFLICT);
+        }
+
         repository.save(user);
         String jwtToken = jwtService.generateToken(user);
         String jwtCookieString = jwtService.cookieFromToken(jwtToken, COOKIE_LIFESPAN);
         return AuthenticationResponse.builder()
                 .cookieString(jwtCookieString)
+                .statusCode(HttpStatus.OK)
+                .responseMessage("User registered successfully!")
                 .build();
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getUsername(),
-                        request.getPassword()
-                )
-        );
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getUsername(),
+                            request.getPassword()
+                    )
+            );
+        } catch (BadCredentialsException e) {
+            logger.error("Authentication failed for the user: {}", request.getUsername());
+            throw new GenericException("Username or Password is incorrect", HttpStatus.UNAUTHORIZED);
+        }
 
-        UserAuthView userAuth = authViewRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new UsernameNotFoundException(request.getUsername()));
+        // Redundant? Unsure
+        Optional<UserAuthView> userAuth = authViewRepository.findByUsername(request.getUsername());
+        if (userAuth.isEmpty()){
+            logger.error("Authentication failed for the user: {}", request.getUsername());
+            throw new GenericException("Username or Password is incorrect", HttpStatus.UNAUTHORIZED);
+        }
 
-        String jwtToken = jwtService.generateToken(userAuth);
+        String jwtToken = jwtService.generateToken(userAuth.get());
         String jwtCookieString = jwtService.cookieFromToken(jwtToken, COOKIE_LIFESPAN);
 
         return AuthenticationResponse.builder()
                 .cookieString(jwtCookieString)
+                .statusCode(HttpStatus.OK)
+                .responseMessage("Login success!")
                 .build();
     }
 
@@ -79,6 +106,8 @@ public class AuthenticationService {
         String jwtCookieString = jwtService.logoutCookie();
         return AuthenticationResponse.builder()
                 .cookieString(jwtCookieString)
+                .statusCode(HttpStatus.OK)
+                .responseMessage("Cookie purged and logged out!")
                 .build();
     }
 
