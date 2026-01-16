@@ -33,14 +33,9 @@ public class SecurityConfig {
             @Override
             public void addCorsMappings(@NonNull CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedMethods(
-                                "GET",
-                                "POST",
-                                "PUT",
-                                "DELETE")
+                        .allowedMethods("GET", "POST", "PUT", "DELETE")
                         .allowCredentials(true) // Needed for cookies
                         .allowedOrigins("**");
-
             }
         };
     }
@@ -57,7 +52,7 @@ public class SecurityConfig {
 //                                .requestMatchers("/api/auth/authenticate").permitAll()
 //                                .anyRequest().authenticated()
 
-                                // Temporary; for development
+                                // Temporary, for development
                                 .anyRequest().permitAll()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

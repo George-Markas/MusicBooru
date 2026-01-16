@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatusCode;
 
+// TODO Use a record class
 @Data
 @Builder
 @AllArgsConstructor
@@ -18,5 +19,4 @@ public class AuthenticationResponse {
 
     private HttpStatusCode statusCode;
     private String responseMessage;
-
 }

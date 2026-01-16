@@ -14,6 +14,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -53,24 +55,22 @@ public class JwtService {
     }
 
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
-        return Jwts.
-                builder()
+        return Jwts.builder()
                 .claims(extraClaims)
                 .claim("authorities", userDetails.getAuthorities().stream()
                         .map(GrantedAuthority::getAuthority)
                         .collect(Collectors.toList()))
                 .subject(userDetails.getUsername())
-                .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 24))
+                .issuedAt(Date.from(Instant.now()))
+                .expiration(Date.from(Instant.now().plus(Duration.ofHours(24))))
                 .signWith(getSignInKey(), Jwts.SIG.HS256)
                 .compact();
     }
 
-    public String cookieFromToken(String jwtToken, int ageMS) {
+    public String cookieFromToken(String jwtToken, long ageMS) {
         ResponseCookie jwtCookie = ResponseCookie.from("jwt", jwtToken)
                 .httpOnly(true)
-                .path("/")
-                .maxAge(ageMS)
+                .path("/").maxAge(ageMS)
                 .sameSite("Strict")
                 .build();
 

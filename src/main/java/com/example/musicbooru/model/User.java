@@ -15,8 +15,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "_user")
-// The underscore prefix is required because "user" is reserved in postgres
+@Table(name = "_user") // The underscore prefix is required because 'user' is reserved in PostgreSQL
 public class User implements UserDetails {
     @Id
     @GeneratedValue
@@ -25,6 +24,7 @@ public class User implements UserDetails {
     @Column(unique = true)
     private String username;
 
+    // TODO This is most likely unsafe, we need to encrypt it somehow, eventually
     private String password;
 
     @Enumerated(EnumType.STRING)

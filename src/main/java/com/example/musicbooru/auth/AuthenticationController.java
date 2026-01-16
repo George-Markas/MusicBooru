@@ -19,26 +19,25 @@ public class AuthenticationController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
-        AuthenticationResponse authRes = service.register(request);
-        return ResponseEntity.status(authRes.getStatusCode())
-                .header(HttpHeaders.SET_COOKIE, authRes.getCookieString())
-                .body(authRes);
+        AuthenticationResponse authenticationResponse = service.register(request);
+        return ResponseEntity.status(authenticationResponse.getStatusCode())
+                .header(HttpHeaders.SET_COOKIE, authenticationResponse.getCookieString())
+                .body(authenticationResponse);
     }
 
     @PostMapping("/authenticate")
     public ResponseEntity<?> authenticate(@RequestBody AuthenticationRequest request) {
-        AuthenticationResponse authRes = service.authenticate(request);
-        return ResponseEntity.status(authRes.getStatusCode())
-                .header(HttpHeaders.SET_COOKIE, authRes.getCookieString())
-                .body(authRes);
+        AuthenticationResponse authenticationResponse = service.authenticate(request);
+        return ResponseEntity.status(authenticationResponse.getStatusCode())
+                .header(HttpHeaders.SET_COOKIE, authenticationResponse.getCookieString())
+                .body(authenticationResponse);
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(){
-        AuthenticationResponse authRes = service.logout();
-        return ResponseEntity.status(authRes.getStatusCode())
-                .header(HttpHeaders.SET_COOKIE, authRes.getCookieString())
-                .body(authRes);
+    public ResponseEntity<?> logout() {
+        AuthenticationResponse authenticationResponse = service.logout();
+        return ResponseEntity.status(authenticationResponse.getStatusCode())
+                .header(HttpHeaders.SET_COOKIE, authenticationResponse.getCookieString())
+                .body(authenticationResponse);
     }
-
 }
