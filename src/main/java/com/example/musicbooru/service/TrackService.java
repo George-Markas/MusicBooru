@@ -5,6 +5,7 @@ import com.example.musicbooru.exception.ResourceNotFoundException;
 import com.example.musicbooru.model.Track;
 import com.example.musicbooru.repository.TrackRepository;
 import com.example.musicbooru.util.MetadataUtils;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.slf4j.Logger;
@@ -35,6 +36,10 @@ public class TrackService {
 
     public List<Track> getTracks() {
         return trackRepository.findAll();
+    }
+
+    public List<Track> getTracks(String field) {
+        return trackRepository.findAll(Sort.by(Sort.Direction.ASC, field));
     }
 
     public Optional<Track> getTrackById(String id) {

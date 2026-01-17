@@ -33,6 +33,7 @@ build/
 .vscode/
 
 library/
+sample_library/
 artwork/
 requests.http
 musicbooru.log*

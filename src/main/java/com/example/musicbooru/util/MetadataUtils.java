@@ -58,7 +58,6 @@ public class MetadataUtils {
         if (artwork != null) {
             byte[] imageData = artwork.getBinaryData();
             try {
-                // TODO Resize image if necessary
                 BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(imageData));
                 ImageIO.write(bufferedImage, "jpg", new File(ARTWORK + id + ARTWORK_EXTENSION));
 

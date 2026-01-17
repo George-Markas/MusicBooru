@@ -66,7 +66,7 @@ public class StreamController {
 
             // --- Validate request headers for caching ---
 
-            // If-None-Match header should contain "*" or ETag. If so, return 304.
+            // If-None-Match header should contain "*" or ETag. If so, return 304
             if (ifNoneMatch != null && HeaderUtils.matches(ifNoneMatch, eTag)) {
                 return ResponseEntity.status(HttpStatus.NOT_MODIFIED)
                         .eTag(eTag)
@@ -74,7 +74,7 @@ public class StreamController {
                         .build();
             }
 
-            // If-Modified-Since header should be greater than lastModified. If so, return 304.
+            // If-Modified-Since header should be greater than lastModified. If so, return 304
             // This header is ignored if any If-None-Match header is specified.
             if (ifNoneMatch == null && ifModifiedSince != null) {
                 Instant clientTimestamp = HeaderUtils.parseHttpDate(ifModifiedSince);
@@ -88,12 +88,12 @@ public class StreamController {
 
             // --- Validate request headers for resume ---
 
-            // If-Match header should contain "*" or ETag. If not, return 412.
+            // If-Match header should contain "*" or ETag. If not, return 412
             if (ifMatch != null && !HeaderUtils.matches(ifMatch, eTag)) {
                 return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).build();
             }
 
-            // If-Unmodified-Since header should be greater than lastModified. If not, return 412.
+            // If-Unmodified-Since header should be greater than lastModified. If not, return 412
             if (ifMatch == null && ifUnmodifiedSince != null) {
                 Instant clientTimestamp = HeaderUtils.parseHttpDate(ifUnmodifiedSince);
                 if (clientTimestamp.isBefore(lastModified)) {
@@ -103,7 +103,7 @@ public class StreamController {
 
             // --- Content phase ---
 
-            // Prepare the resource response.
+            // Prepare the resource response
             FileSystemResource resource = new FileSystemResource(filePath.toFile());
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(AUDIO_MIMETYPE))
