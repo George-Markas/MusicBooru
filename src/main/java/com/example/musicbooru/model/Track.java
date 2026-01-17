@@ -1,21 +1,18 @@
 package com.example.musicbooru.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.UUID;
 
 import static com.example.musicbooru.util.Commons.AUDIO_EXTENSION;
 
-@Entity
-@Table(name = "track")
-@Builder
 @Data
+@Entity
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "track")
 public class Track {
     @Id
     private UUID id;
