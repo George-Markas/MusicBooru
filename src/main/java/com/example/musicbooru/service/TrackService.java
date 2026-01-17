@@ -90,7 +90,7 @@ public class TrackService {
             }
             Files.move(temp, target, StandardCopyOption.REPLACE_EXISTING);
 
-            logger.info("Uploaded track '{}'", track.getId());
+            logger.info("Added track '{}'", track.getId());
         } catch (IOException e) {
             logger.error("An unexpected error occurred", e);
             throw new GenericException("An unexpected error occurred");
