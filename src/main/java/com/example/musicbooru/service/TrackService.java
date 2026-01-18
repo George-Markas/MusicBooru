@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.*;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -123,5 +124,13 @@ public class TrackService {
 
         trackRepository.delete(track);
         logger.info("Deleted database entry for track '{}'", id);
+    }
+
+    public List<Track> searchTracks(String query) {
+        final int CHARACTER_LIMIT = 64;
+
+        if (query == null || query.isBlank()) return Collections.emptyList();
+
+        return trackRepository.searchTracks(query.trim(), CHARACTER_LIMIT);
     }
 }
