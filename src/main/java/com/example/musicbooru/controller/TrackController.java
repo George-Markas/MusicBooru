@@ -51,9 +51,7 @@ public class TrackController {
     public ResponseEntity<Track> getTrack(@PathVariable String id) {
         Optional<Track> track = trackService.getTrackById(id);
 
-        if (track.isPresent()) {
-            return ResponseEntity.ok(track.get());
-        }
+        if (track.isPresent()) return ResponseEntity.ok(track.get());
 
         logger.error("Could not find track '{}'", id);
         throw new ResourceNotFoundException("Could not find track '" + id + "'");
@@ -62,12 +60,14 @@ public class TrackController {
     @PostMapping("/upload")
     public ResponseEntity<String> uploadTrack(@RequestPart("file") MultipartFile file) {
         trackService.uploadTrack(file);
+
         return ResponseEntity.ok("Track uploaded");
     }
 
     @PostMapping("/delete/{id}")
     public ResponseEntity<String> deleteTrack(@PathVariable String id) {
         trackService.deleteTrack(id);
+
         return ResponseEntity.ok("Track deleted");
     }
 
@@ -96,6 +96,14 @@ public class TrackController {
             throw new GenericException("Could not fetch artwork");
         }
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<Track>> searchTracks(@RequestParam String query) {
+        List<Track> results = trackService.searchTracks(query);
+
+        return ResponseEntity.ok(results);
+    }
+
 
     @Profile("dev")
     @PostMapping("/upload/batch")

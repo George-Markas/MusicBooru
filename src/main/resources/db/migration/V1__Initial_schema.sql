@@ -26,6 +26,3 @@ ALTER TABLE track
     ADD CONSTRAINT uc_track_filename UNIQUE (file_name);
 
 CREATE INDEX idx_user_username ON _user (username);
-CREATE INDEX idx_track_title ON track (title);
-CREATE INDEX idx_track_artist ON track (artist);
-CREATE INDEX idx_track_album ON track (album);

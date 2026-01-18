@@ -31,34 +31,40 @@ public class SecurityConfig {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(@NonNull CorsRegistry registry) {
-                registry.addMapping("/**").allowedMethods(
-                        "GET",
-                        "POST",
-                        "PUT",
-                        "DELETE"
-                ).allowedOrigins("**");
+                registry.addMapping("/**")
+                        .allowedMethods("GET", "POST", "PUT", "DELETE")
+                        .allowedOrigins("*");
             }
         };
     }
 
+//    @Bean
+//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+//        http.csrf(AbstractHttpConfigurer::disable)
+//                .authorizeHttpRequests(req -> req
+//                        .requestMatchers("/api/auth/register").hasAuthority(Role.ADMIN.name())
+//                        .requestMatchers("/api/track/upload").hasAuthority(Role.ADMIN.name())
+//                        .requestMatchers("/api/track/delete").hasAuthority(Role.ADMIN.name())
+//                        .requestMatchers("/api/track/art/**").permitAll()
+//                        .requestMatchers("/api/track/**").permitAll()
+//                        .requestMatchers("/api/auth/authenticate").permitAll()
+//                        .anyRequest().authenticated()
+//                )
+//                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+//                .authenticationProvider(authenticationProvider)
+//                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+//
+//        return http.build();
+//    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(req -> req
-//                                .requestMatchers("/api/auth/register").hasAuthority(Role.ADMIN.name())
-//                                .requestMatchers("/api/track/upload").hasAuthority(Role.ADMIN.name())
-//                                .requestMatchers("/api/track/delete").hasAuthority(Role.ADMIN.name())
-//                                .requestMatchers("/api/track/art/**").permitAll()
-//                                .requestMatchers("/api/track/**").permitAll()
-//                                .requestMatchers("/api/auth/authenticate").permitAll()
-//                                .anyRequest().authenticated()
-
-                                // Temporary; for development
-                                .anyRequest().permitAll()
-                )
+                .authorizeHttpRequests(req -> req.anyRequest().permitAll())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 }
