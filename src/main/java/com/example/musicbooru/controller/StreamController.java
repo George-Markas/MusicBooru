@@ -23,8 +23,8 @@ import java.util.concurrent.TimeUnit;
 import static com.example.musicbooru.util.Commons.AUDIO_MIMETYPE;
 import static com.example.musicbooru.util.Commons.LIBRARY;
 
-@AllArgsConstructor
 @RestController
+@AllArgsConstructor
 @RequestMapping("/api/stream")
 public class StreamController {
 

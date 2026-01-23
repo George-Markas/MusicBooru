@@ -6,6 +6,7 @@ import com.example.musicbooru.model.User;
 import com.example.musicbooru.model.UserAuthView;
 import com.example.musicbooru.repository.UserRepository;
 import com.example.musicbooru.repository.UserAuthViewRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -13,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class AuthenticationService {
 
     private final UserRepository repository;
@@ -20,20 +22,6 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
-
-    public AuthenticationService(
-            UserRepository userRepository,
-            UserAuthViewRepository authViewRepository,
-            PasswordEncoder passwordEncoder,
-            JwtService jwtService,
-            AuthenticationManager authenticationManager
-    ) {
-        this.repository = userRepository;
-        this.authViewRepository = authViewRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtService = jwtService;
-        this.authenticationManager = authenticationManager;
-    }
 
     public AuthenticationResponse register(RegisterRequest request) {
         User user = User.builder()
