@@ -1,16 +1,7 @@
 package com.example.musicbooru.auth;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Data
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-public class RegisterRequest {
-
-    private String username;
-    private String password;
+public record RegisterRequest(
+        String username,
+        String password
+) {
 }
