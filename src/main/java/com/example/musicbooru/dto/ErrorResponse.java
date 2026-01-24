@@ -1,4 +1,4 @@
-package com.example.musicbooru.exception;
+package com.example.musicbooru.dto;
 
 import java.time.LocalDateTime;
 

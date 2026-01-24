@@ -5,6 +5,7 @@ import com.example.musicbooru.exception.ResourceNotFoundException;
 import com.example.musicbooru.model.Track;
 import com.example.musicbooru.repository.TrackRepository;
 import com.example.musicbooru.util.MetadataUtils;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,15 +22,12 @@ import java.util.UUID;
 import static com.example.musicbooru.util.Commons.*;
 
 @Service
+@RequiredArgsConstructor
 public class TrackService {
 
     private final static Logger logger = LoggerFactory.getLogger(TrackService.class);
 
     private final TrackRepository trackRepository;
-
-    public TrackService(TrackRepository trackRepository) {
-        this.trackRepository = trackRepository;
-    }
 
     public boolean trackExists(String id) {
         return trackRepository.existsById(UUID.fromString(id));

@@ -1,4 +1,4 @@
-package com.example.musicbooru.config;
+package com.example.musicbooru.auth.service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
