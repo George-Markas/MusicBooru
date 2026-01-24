@@ -1,6 +1,8 @@
-package com.example.musicbooru.auth;
+package com.example.musicbooru.auth.service;
 
-import com.example.musicbooru.config.JwtService;
+import com.example.musicbooru.auth.dto.AuthenticationRequest;
+import com.example.musicbooru.auth.dto.AuthenticationResponse;
+import com.example.musicbooru.auth.dto.RegisterRequest;
 import com.example.musicbooru.model.Role;
 import com.example.musicbooru.model.User;
 import com.example.musicbooru.model.UserAuthView;
