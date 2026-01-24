@@ -47,10 +47,11 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http, Environment environment) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable);
 
+        // Disable auth for development profile, to be removed in release
         if (Arrays.asList(environment.getActiveProfiles()).contains("dev")) {
             http.authorizeHttpRequests(req -> req.anyRequest().permitAll())
                     .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-            logger.warn("Development profile is active, authentication is disabled");
+            logger.warn("Development profile is active; authentication is disabled");
         } else {
             http.authorizeHttpRequests(req -> req
                             .requestMatchers("/api/auth/register").hasAuthority(Role.ADMIN.name())
