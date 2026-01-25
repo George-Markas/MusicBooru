@@ -1,4 +1,4 @@
-package com.example.musicbooru.auth.dto;
+package com.example.musicbooru.auth;
 
 public record RegisterRequest(
         String username,

@@ -1,6 +1,6 @@
 package com.example.musicbooru.config;
 
-import com.example.musicbooru.auth.filter.JwtAuthenticationFilter;
+import com.example.musicbooru.auth.JwtAuthenticationFilter;
 import com.example.musicbooru.model.Role;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;

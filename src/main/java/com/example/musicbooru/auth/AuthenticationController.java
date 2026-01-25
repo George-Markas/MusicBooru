@@ -1,9 +1,5 @@
-package com.example.musicbooru.auth.controller;
+package com.example.musicbooru.auth;
 
-import com.example.musicbooru.auth.dto.AuthenticationRequest;
-import com.example.musicbooru.auth.dto.AuthenticationResponse;
-import com.example.musicbooru.auth.dto.RegisterRequest;
-import com.example.musicbooru.auth.service.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

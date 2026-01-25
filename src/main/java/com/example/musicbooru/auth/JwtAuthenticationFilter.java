@@ -1,6 +1,5 @@
-package com.example.musicbooru.auth.filter;
+package com.example.musicbooru.auth;
 
-import com.example.musicbooru.auth.service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
