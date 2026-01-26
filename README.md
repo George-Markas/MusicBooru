@@ -1,8 +1,8 @@
 # MusicBooru
-MusicBooru is a web app for streaming music over the network. It uses MPEG-4 AAC (for which transcoding support will
-be added).
+MusicBooru is a web app for streaming music over the network. For now, only MPEG-4 AAC is supported
+(transcoding to that format might be implemented).
 
-**This project is still very much work in progress.** It was initially conceived for the "Special Topics 
+**This project is still very much work in progress.** It was initially conceived for the "Special Topics
 in Software Engineering" course.
 
 ## Build and run
