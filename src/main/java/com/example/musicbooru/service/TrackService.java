@@ -29,8 +29,8 @@ public class TrackService {
 
     private final TrackRepository trackRepository;
 
-    public boolean trackExists(String id) {
-        return trackRepository.existsById(UUID.fromString(id));
+    public boolean trackExists(String trackId) {
+        return trackRepository.existsById(UUID.fromString(trackId));
     }
 
     public List<Track> getTracks() {
@@ -41,8 +41,8 @@ public class TrackService {
         return trackRepository.findAll(Sort.by(Sort.Direction.ASC, field));
     }
 
-    public Optional<Track> getTrackById(String id) {
-        return trackRepository.findById(UUID.fromString(id));
+    public Optional<Track> getTrackById(String trackId) {
+        return trackRepository.findById(UUID.fromString(trackId));
     }
 
     public void uploadTrack(MultipartFile file) {
@@ -51,7 +51,6 @@ public class TrackService {
             Files.createDirectories(Path.of(LIBRARY));
             Files.createDirectories(Path.of(ARTWORK));
         } catch (IOException e) {
-            logger.error("Could not create directory", e);
             throw new GenericException("Could not create directory");
         }
 
@@ -77,6 +76,7 @@ public class TrackService {
                     .year(metadataUtils.getYear())
                     .fileName(fileName)
                     .build();
+
             trackRepository.save(track);
 
             // Extract cover art
@@ -91,37 +91,22 @@ public class TrackService {
 
             logger.info("Added track '{}'", track.getId());
         } catch (IOException e) {
-            logger.error("An unexpected error occurred", e);
             throw new GenericException("An unexpected error occurred");
         }
     }
 
-    public void deleteTrack(String id) {
-        Track track = trackRepository.findById(UUID.fromString(id)).orElseThrow(() -> {
-            logger.error("Could not find track '{}'", id);
-            return new ResourceNotFoundException("Could not find track '" + id + "'");
-        });
+    public void deleteTrack(String trackId) {
+        Track track = trackRepository.findById(UUID.fromString(trackId))
+                .orElseThrow(() -> new ResourceNotFoundException("Track '" + trackId + "' not found"));
 
         try {
-            Files.delete(Paths.get(LIBRARY + track.getFileName()));
-            logger.info("Deleted audio file for track '{}'", id);
+            Files.deleteIfExists(Paths.get(ARTWORK + track.getFileName() + ARTWORK_EXTENSION));
+            Files.deleteIfExists(Paths.get(LIBRARY + track.getFileName()));
+            trackRepository.delete(track);
+            logger.info("Deleted track '{}'", trackId);
         } catch (IOException e) {
-            logger.error("Could not delete audio file for track '{}'", id, e);
-            throw new GenericException("Could not delete audio file for track '" + id + "'");
+            throw new GenericException("Could not delete track");
         }
-
-        if (Files.exists(Path.of(ARTWORK + id + ARTWORK_EXTENSION))) {
-            try {
-                Files.delete(Paths.get(ARTWORK + track.getId() + ARTWORK_EXTENSION));
-                logger.info("Deleted artwork for track '{}'", id);
-            } catch (IOException e) {
-                logger.error("Could not delete artwork for track '{}'; ", id, e);
-                throw new GenericException("Could not delete artwork for track '" + id + "'");
-            }
-        }
-
-        trackRepository.delete(track);
-        logger.info("Deleted database entry for track '{}'", id);
     }
 
     public List<Track> searchTracks(String query) {

@@ -31,7 +31,6 @@ public class MetadataUtils {
             this.audioFile = AudioFileIO.read(file);
             this.tag = audioFile.getTag();
         } catch (Exception e) {
-            logger.error("Could not read the tag contained in the given file", e);
             throw new GenericException("Could not read the tag contained in the given file");
         }
     }
@@ -53,24 +52,24 @@ public class MetadataUtils {
         }
     }
 
-    public void extractArtwork(String id) {
+    public void extractArtwork(String trackId) {
         Artwork artwork = this.tag.getFirstArtwork();
         if (artwork != null) {
             byte[] imageData = artwork.getBinaryData();
             try {
                 BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(imageData));
-                ImageIO.write(bufferedImage, "jpg", new File(ARTWORK + id + ARTWORK_EXTENSION));
+                ImageIO.write(bufferedImage, "jpg", new File(ARTWORK + trackId + ARTWORK_EXTENSION));
 
                 // Delete the embedded artwork since we don't need two instances of it
                 this.tag.deleteArtworkField();
                 this.audioFile.commit();
             } catch (IOException e) {
-                logger.error("Could not read image data", e);
+                throw new GenericException("Could not read image data");
             } catch (CannotWriteException e) {
-                logger.error("Could not write to file", e);
+                throw new GenericException("Could not write to file");
             }
         } else {
-            logger.warn("Track '{}' has no embedded cover art", id);
+            logger.warn("Track '{}' has no embedded artwork", trackId);
         }
     }
 
@@ -78,7 +77,7 @@ public class MetadataUtils {
         try {
             return this.tag.getFirst(FieldKey.TITLE);
         } catch (KeyNotFoundException e) {
-            logger.error("Field does not exist", e);
+            logger.warn("Field does not exist", e);
             return "";
         }
     }
@@ -87,7 +86,7 @@ public class MetadataUtils {
         try {
             return this.tag.getFirst(FieldKey.ARTIST);
         } catch (KeyNotFoundException e) {
-            logger.error("Field does not exist", e);
+            logger.warn("Field does not exist", e);
             return "";
         }
     }
@@ -96,7 +95,7 @@ public class MetadataUtils {
         try {
             return this.tag.getFirst(FieldKey.ALBUM);
         } catch (KeyNotFoundException e) {
-            logger.error("Field does not exist", e);
+            logger.warn("Field does not exist", e);
             return "";
         }
     }
@@ -105,7 +104,7 @@ public class MetadataUtils {
         try {
             return this.tag.getFirst(FieldKey.GENRE);
         } catch (KeyNotFoundException e) {
-            logger.error("Field does not exist", e);
+            logger.warn("Field does not exist", e);
             return "";
         }
     }
@@ -114,7 +113,7 @@ public class MetadataUtils {
         try {
             return this.tag.getFirst(FieldKey.YEAR);
         } catch (KeyNotFoundException e) {
-            logger.error("Field does not exist", e);
+            logger.warn("Field does not exist", e);
             return "";
         }
     }

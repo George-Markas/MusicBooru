@@ -6,8 +6,6 @@ import com.example.musicbooru.model.Track;
 import com.example.musicbooru.service.TrackService;
 import com.example.musicbooru.util.HeaderUtils;
 import lombok.AllArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.*;
@@ -19,7 +17,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import static com.example.musicbooru.util.Commons.AUDIO_MIMETYPE;
@@ -30,33 +27,24 @@ import static com.example.musicbooru.util.Commons.LIBRARY;
 @RequestMapping("/api/stream")
 public class StreamController {
 
-    private final static Logger logger = LoggerFactory.getLogger(StreamController.class);
-
     private final TrackService trackService;
 
-    @GetMapping("/{id}")
+    @GetMapping("/{trackId}")
     public ResponseEntity<Resource> serveResource(
-            @PathVariable String id,
+            @PathVariable String trackId,
             @RequestHeader(value = HttpHeaders.IF_MATCH, required = false) String ifMatch,
             @RequestHeader(value = HttpHeaders.IF_NONE_MATCH, required = false) String ifNoneMatch,
             @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false) String ifModifiedSince,
             @RequestHeader(value = HttpHeaders.IF_UNMODIFIED_SINCE, required = false) String ifUnmodifiedSince
     ) {
-        Optional<Track> track = trackService.getTrackById(id);
-        if (track.isEmpty()) {
-            logger.error("Could not find track '{}'", id);
-            throw new ResourceNotFoundException("Could not find track '" + id + "'");
-        }
+        Track track = trackService.getTrackById(trackId)
+                .orElseThrow(() -> new ResourceNotFoundException("Track '" + trackId + "' not found"));
 
-        String fileName = track.orElseThrow(() -> {
-            logger.error("Could not get filename for track '{}'", id);
-            return new ResourceNotFoundException("Could not get filename for track '" + id + "'");
-        }).getFileName();
+        String fileName = track.getFileName();
 
         Path filePath = Path.of(LIBRARY + fileName);
         if (Files.notExists(filePath)) {
-            logger.error("Could not find audio file with path {} for track '{}'", filePath, id);
-            throw new ResourceNotFoundException("Could not find audio file with path" + filePath + "for track '" + id + "'");
+            throw new ResourceNotFoundException("Audio file '" + filePath + "' not found");
         }
 
         try {
@@ -117,7 +105,6 @@ public class StreamController {
                     .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + URLEncoder.encode(fileName, StandardCharsets.UTF_8) + "\"")
                     .body(resource);
         } catch (IOException e) {
-            logger.error("An unexpected error occurred", e);
             throw new GenericException("An unexpected error occurred");
         }
     }

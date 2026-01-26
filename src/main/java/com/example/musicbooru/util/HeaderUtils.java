@@ -1,8 +1,6 @@
 package com.example.musicbooru.util;
 
 import com.example.musicbooru.exception.GenericException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -15,14 +13,11 @@ import java.time.format.DateTimeParseException;
 
 public class HeaderUtils {
 
-    private final static Logger logger = LoggerFactory.getLogger(HeaderUtils.class);
-
     public static String generateETag(Path path) {
         try {
             BasicFileAttributes attrs = Files.readAttributes(path, BasicFileAttributes.class);
             return String.format("\"%d-%d\"", attrs.lastModifiedTime().toMillis(), attrs.size());
         } catch (IOException e) {
-            logger.error("Could not read file attributes", e);
             throw new GenericException("Could not read file attributes");
         }
     }
@@ -48,7 +43,6 @@ public class HeaderUtils {
             DateTimeFormatter formatter = DateTimeFormatter.RFC_1123_DATE_TIME;
             return ZonedDateTime.parse(httpDate, formatter).toInstant();
         } catch (DateTimeParseException e) {
-            logger.error("Could not parse date string", e);
             throw new GenericException("Could not parse date string");
         }
     }
