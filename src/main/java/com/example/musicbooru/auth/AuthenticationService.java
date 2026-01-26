@@ -7,8 +7,7 @@ import com.example.musicbooru.model.UserAuthView;
 import com.example.musicbooru.repository.UserRepository;
 import com.example.musicbooru.repository.UserAuthViewRepository;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -21,7 +20,6 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
-    private final static Logger logger = LoggerFactory.getLogger(AuthenticationService.class);
 
     private final UserRepository repository;
     private final UserAuthViewRepository authViewRepository;
