@@ -49,7 +49,7 @@ public class StreamController {
 
         try {
             // We generate the ETag from file metadata as opposed to something like hashing the file
-            // because we're dealing with relatively large files (30 - 100 MB).
+            // because we're dealing with relatively large files.
             String eTag = HeaderUtils.generateETag(filePath);
             Instant lastModified = Files.getLastModifiedTime(filePath).toInstant();
 
