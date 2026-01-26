@@ -1,20 +1,27 @@
 package com.example.musicbooru.auth;
 
+import com.example.musicbooru.exception.GenericException;
 import com.example.musicbooru.model.Role;
 import com.example.musicbooru.model.User;
 import com.example.musicbooru.model.UserAuthView;
 import com.example.musicbooru.repository.UserRepository;
 import com.example.musicbooru.repository.UserAuthViewRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
+    private final static Logger logger = LoggerFactory.getLogger(AuthenticationService.class);
 
     private final UserRepository repository;
     private final UserAuthViewRepository authViewRepository;
@@ -29,25 +36,52 @@ public class AuthenticationService {
                 .role(Role.USER)
                 .build();
 
+        if (repository.existsByUsername(user.getUsername())) {
+            throw new GenericException("Username already in use", HttpStatus.CONFLICT);
+        }
+
         repository.save(user);
         String jwtToken = jwtService.generateToken(user);
+        String jwtCookieString = jwtService.cookieFromToken(jwtToken);
 
-        return new AuthenticationResponse(jwtToken);
+        return new AuthenticationResponse(
+                jwtCookieString,
+                HttpStatus.OK,
+                "User registered successfully");
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.username(),
-                        request.password()
-                )
-        );
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.username(),
+                            request.password()
+                    )
+            );
+        } catch (BadCredentialsException e) {
+            throw new GenericException("Incorrect username or password", HttpStatus.UNAUTHORIZED);
+        }
 
-        UserAuthView userAuthView = authViewRepository.findByUsername(request.username())
-                .orElseThrow(() -> new UsernameNotFoundException(request.username()));
+        // TODO Evaluate whether this check is needed or not
+        Optional<UserAuthView> userAuth = authViewRepository.findByUsername(request.username());
+        if (userAuth.isEmpty()) {
+            throw new GenericException("Incorrect username or password", HttpStatus.UNAUTHORIZED);
+        }
 
-        String jwtToken = jwtService.generateToken(userAuthView);
+        String jwtToken = jwtService.generateToken(userAuth.get());
+        String jwtCookieString = jwtService.cookieFromToken(jwtToken);
 
-        return new AuthenticationResponse(jwtToken);
+        return new AuthenticationResponse(
+                jwtCookieString,
+                HttpStatus.OK,
+                "Login success");
+    }
+
+    public AuthenticationResponse logout() {
+        String jwtCookieString = jwtService.logoutCookie();
+        return new AuthenticationResponse(
+                jwtCookieString,
+                HttpStatus.OK,
+                "Logout success");
     }
 }
