@@ -21,7 +21,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AuthenticationService {
 
-    private final UserRepository repository;
+    private final UserRepository userRepository;
     private final UserAuthViewRepository authViewRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
@@ -34,11 +34,11 @@ public class AuthenticationService {
                 .role(Role.USER)
                 .build();
 
-        if (repository.existsByUsername(user.getUsername())) {
+        if (userRepository.existsByUsername(user.getUsername())) {
             throw new GenericException("Username already in use", HttpStatus.CONFLICT);
         }
 
-        repository.save(user);
+        userRepository.save(user);
         String jwtToken = jwtService.generateToken(user);
         String jwtCookieString = jwtService.cookieFromToken(jwtToken);
 
@@ -72,7 +72,8 @@ public class AuthenticationService {
         return new AuthenticationResponse(
                 jwtCookieString,
                 HttpStatus.OK,
-                "Login success");
+                "Login success"
+        );
     }
 
     public AuthenticationResponse logout() {
@@ -80,6 +81,7 @@ public class AuthenticationService {
         return new AuthenticationResponse(
                 jwtCookieString,
                 HttpStatus.OK,
-                "Logout success");
+                "Logout success"
+        );
     }
 }
