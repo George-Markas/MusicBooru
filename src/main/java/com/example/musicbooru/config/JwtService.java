@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 public class JwtService {
 
     private static final String SECRET_KEY = "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970";
+    private static final Duration MAX_LIFESPAN = Duration.ofHours(24);
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -62,15 +63,27 @@ public class JwtService {
                         .collect(Collectors.toList()))
                 .subject(userDetails.getUsername())
                 .issuedAt(Date.from(Instant.now()))
-                .expiration(Date.from(Instant.now().plus(Duration.ofHours(24))))
+                .expiration(Date.from(Instant.now().plus(MAX_LIFESPAN)))
                 .signWith(getSignInKey(), Jwts.SIG.HS256)
                 .compact();
     }
 
-    public String cookieFromToken(String jwtToken, long ageMS) {
+    public String cookieFromToken(String jwtToken) {
         ResponseCookie jwtCookie = ResponseCookie.from("jwt", jwtToken)
                 .httpOnly(true)
-                .path("/").maxAge(ageMS)
+                .path("/")
+                .maxAge(MAX_LIFESPAN)
+                .sameSite("Strict")
+                .build();
+
+        return jwtCookie.toString();
+    }
+
+    private String emptyCookie() {
+        ResponseCookie jwtCookie = ResponseCookie.from("jwt", "")
+                .httpOnly(true)
+                .path("/")
+                .maxAge(0)
                 .sameSite("Strict")
                 .build();
 
@@ -90,7 +103,7 @@ public class JwtService {
     }
 
     public String logoutCookie() {
-        return cookieFromToken("", 0);
+        return emptyCookie();
     }
 
     private SecretKey getSignInKey() {

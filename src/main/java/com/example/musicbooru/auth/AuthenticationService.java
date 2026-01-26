@@ -18,13 +18,12 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.Optional;
 
 @Service
 public class AuthenticationService {
     private final static Logger logger = LoggerFactory.getLogger(AuthenticationService.class);
-
-    private static final int COOKIE_LIFESPAN = 900;
 
     private final UserRepository repository;
     private final UserAuthViewRepository authViewRepository;
@@ -60,7 +59,7 @@ public class AuthenticationService {
 
         repository.save(user);
         String jwtToken = jwtService.generateToken(user);
-        String jwtCookieString = jwtService.cookieFromToken(jwtToken, COOKIE_LIFESPAN);
+        String jwtCookieString = jwtService.cookieFromToken(jwtToken);
 
         return AuthenticationResponse.builder()
                 .cookieString(jwtCookieString)
@@ -78,19 +77,17 @@ public class AuthenticationService {
                     )
             );
         } catch (BadCredentialsException e) {
-            logger.error("Authentication failed for user '{}'", request.getUsername());
             throw new GenericException("Incorrect username or password", HttpStatus.UNAUTHORIZED);
         }
 
         // TODO Evaluate whether this check is needed or not
         Optional<UserAuthView> userAuth = authViewRepository.findByUsername(request.getUsername());
         if (userAuth.isEmpty()) {
-            logger.error("Authentication failed for user '{}'", request.getUsername());
             throw new GenericException("Incorrect username or password", HttpStatus.UNAUTHORIZED);
         }
 
         String jwtToken = jwtService.generateToken(userAuth.get());
-        String jwtCookieString = jwtService.cookieFromToken(jwtToken, COOKIE_LIFESPAN);
+        String jwtCookieString = jwtService.cookieFromToken(jwtToken);
 
         return AuthenticationResponse.builder()
                 .cookieString(jwtCookieString)
