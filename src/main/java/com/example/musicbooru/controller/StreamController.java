@@ -102,7 +102,8 @@ public class StreamController {
                     .lastModified(lastModified)
                     .cacheControl(CacheControl.maxAge(7, TimeUnit.DAYS).cachePublic())
                     .header(HttpHeaders.ACCEPT_RANGES, "bytes")
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + URLEncoder.encode(fileName, StandardCharsets.UTF_8) + "\"")
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\""
+                            + URLEncoder.encode(fileName, StandardCharsets.UTF_8) + "\"")
                     .body(resource);
         } catch (IOException e) {
             throw new GenericException("An unexpected error occurred");

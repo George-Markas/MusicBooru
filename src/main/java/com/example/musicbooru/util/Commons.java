@@ -12,4 +12,6 @@ public class Commons {
     public static final String ARTWORK_EXTENSION = ".jpg";
 
     public static final String AUDIO_MIMETYPE = "audio/mp4";
+
+    public static final int QUERY_CHARACTER_LIMIT = 64;
 }

@@ -63,7 +63,7 @@ public class TrackService {
             MetadataUtils metadataUtils = new MetadataUtils(temp.toFile());
             String fileName = metadataUtils.generateFileName();
             if (fileName != null && trackRepository.existsByFileName(fileName)) {
-                logger.warn("Track with filename \"{}\" already exists; using UUID for filename", fileName);
+                logger.warn("Track with filename '{}' already exists; using UUID for filename", fileName);
                 fileName = null;
             }
 
@@ -85,7 +85,7 @@ public class TrackService {
             // Move song to the library directory
             Path target = Paths.get(LIBRARY + track.getFileName());
             if (Files.exists(target)) {
-                logger.warn("File \"{}\" already exists and will be overwritten", track.getFileName());
+                logger.warn("File '{}' already exists and will be overwritten", track.getFileName());
             }
             Files.move(temp, target, StandardCopyOption.REPLACE_EXISTING);
 
@@ -110,10 +110,7 @@ public class TrackService {
     }
 
     public List<Track> searchTracks(String query) {
-        final int CHARACTER_LIMIT = 64;
-
         if (query == null || query.isBlank()) return Collections.emptyList();
-
-        return trackRepository.searchTracks(query.trim(), CHARACTER_LIMIT);
+        return trackRepository.searchTracks(query.trim(), QUERY_CHARACTER_LIMIT);
     }
 }

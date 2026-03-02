@@ -77,7 +77,7 @@ public class MetadataUtils {
         try {
             return this.tag.getFirst(FieldKey.TITLE);
         } catch (KeyNotFoundException e) {
-            logger.warn("Field does not exist", e);
+            logger.warn("Title field does not exist", e);
             return "";
         }
     }
@@ -86,7 +86,7 @@ public class MetadataUtils {
         try {
             return this.tag.getFirst(FieldKey.ARTIST);
         } catch (KeyNotFoundException e) {
-            logger.warn("Field does not exist", e);
+            logger.warn("Artist field does not exist", e);
             return "";
         }
     }
@@ -95,7 +95,7 @@ public class MetadataUtils {
         try {
             return this.tag.getFirst(FieldKey.ALBUM);
         } catch (KeyNotFoundException e) {
-            logger.warn("Field does not exist", e);
+            logger.warn("Album field does not exist", e);
             return "";
         }
     }
@@ -104,7 +104,7 @@ public class MetadataUtils {
         try {
             return this.tag.getFirst(FieldKey.GENRE);
         } catch (KeyNotFoundException e) {
-            logger.warn("Field does not exist", e);
+            logger.warn("Genre field does not exist", e);
             return "";
         }
     }
@@ -113,7 +113,7 @@ public class MetadataUtils {
         try {
             return this.tag.getFirst(FieldKey.YEAR);
         } catch (KeyNotFoundException e) {
-            logger.warn("Field does not exist", e);
+            logger.warn("Year field does not exist", e);
             return "";
         }
     }
