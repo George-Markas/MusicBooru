@@ -100,7 +100,7 @@ public class TrackService {
                 .orElseThrow(() -> new ResourceNotFoundException("Track '" + trackId + "' not found"));
 
         try {
-            Files.deleteIfExists(Paths.get(ARTWORK + track.getFileName() + ARTWORK_EXTENSION));
+            Files.deleteIfExists(Paths.get(ARTWORK + trackId + ARTWORK_EXTENSION));
             Files.deleteIfExists(Paths.get(LIBRARY + track.getFileName()));
             trackRepository.delete(track);
             logger.info("Deleted track '{}'", trackId);
