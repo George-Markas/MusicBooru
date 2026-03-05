@@ -15,8 +15,8 @@ public class HeaderUtils {
 
     public static String generateETag(Path path) {
         try {
-            BasicFileAttributes attrs = Files.readAttributes(path, BasicFileAttributes.class);
-            return String.format("\"%d-%d\"", attrs.lastModifiedTime().toMillis(), attrs.size());
+            BasicFileAttributes attributes = Files.readAttributes(path, BasicFileAttributes.class);
+            return String.format("\"%d-%d\"", attributes.lastModifiedTime().toMillis(), attributes.size());
         } catch (IOException e) {
             throw new GenericException("Could not read file attributes");
         }
