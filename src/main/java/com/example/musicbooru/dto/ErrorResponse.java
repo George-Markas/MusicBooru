@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatusCode;
 import java.time.LocalDateTime;
 
 public record ErrorResponse(
-        HttpStatusCode statusCode,
+        HttpStatusCode status,
         String message,
 
         @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")

@@ -7,7 +7,7 @@ public record AuthenticationResponse(
         @JsonIgnore
         String cookieString,
 
-        HttpStatusCode statusCode,
-        String responseMessage
+        HttpStatusCode status,
+        String message
 ) {
 }
