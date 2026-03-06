@@ -45,7 +45,7 @@ public class TrackService {
         return trackRepository.findById(UUID.fromString(trackId));
     }
 
-    public void uploadTrack(MultipartFile file) {
+    public void addTrack(MultipartFile file) {
         try {
             // Create directories for the audio files and accompanying artwork
             Files.createDirectories(Path.of(LIBRARY));
@@ -85,6 +85,7 @@ public class TrackService {
             // Move song to the library directory
             Path target = Paths.get(LIBRARY + track.getFileName());
             if (Files.exists(target)) {
+                // TODO Take care of the artwork when overwriting
                 logger.warn("File '{}' already exists and will be overwritten", track.getFileName());
             }
             Files.move(temp, target, StandardCopyOption.REPLACE_EXISTING);
@@ -95,7 +96,7 @@ public class TrackService {
         }
     }
 
-    public void deleteTrack(String trackId) {
+    public void removeTrack(String trackId) {
         Track track = trackRepository.findById(UUID.fromString(trackId))
                 .orElseThrow(() -> new ResourceNotFoundException("Track '" + trackId + "' not found"));
 

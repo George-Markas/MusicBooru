@@ -52,14 +52,14 @@ public class TrackController {
 
     @PostMapping("/upload")
     public ResponseEntity<String> uploadTrack(@RequestPart("file") MultipartFile file) {
-        trackService.uploadTrack(file);
+        trackService.addTrack(file);
 
         return ResponseEntity.ok("Track uploaded");
     }
 
     @DeleteMapping("/delete/{trackId}")
     public ResponseEntity<String> deleteTrack(@PathVariable String trackId) {
-        trackService.deleteTrack(trackId);
+        trackService.removeTrack(trackId);
 
         return ResponseEntity.ok("Track deleted");
     }
@@ -94,7 +94,7 @@ public class TrackController {
     @PostMapping("/upload/batch")
     public ResponseEntity<String> uploadTracks(@RequestParam("file") List<MultipartFile> files) {
         for (MultipartFile file : files) {
-            trackService.uploadTrack(file);
+            trackService.addTrack(file);
         }
 
         return ResponseEntity.ok(files.size() + " tracks uploaded");
@@ -105,7 +105,7 @@ public class TrackController {
     public ResponseEntity<String> deleteAllTracks() {
         List<Track> tracks = trackService.getTracks();
         for (Track track : tracks) {
-            trackService.deleteTrack(String.valueOf(track.getId()));
+            trackService.removeTrack(String.valueOf(track.getId()));
         }
 
         return ResponseEntity.ok("Purged all tracks");
