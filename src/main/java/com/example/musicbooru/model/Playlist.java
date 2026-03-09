@@ -25,13 +25,13 @@ public class Playlist {
     @JoinColumn(name = "user_id", nullable = false)
     private User owner;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "playlist_track",
-            joinColumns = @JoinColumn(name = "playlist_id"),
-            inverseJoinColumns = @JoinColumn(name = "track_id")
-
+    @OneToMany(
+            mappedBy = "playlist",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
     )
-    @OrderColumn(name = "position")
-    private List<Track> tracks = new ArrayList<>();
+    @OrderBy("addedOn ASC")
+    private List<PlaylistEntry> entries = new ArrayList<>();
+
 }

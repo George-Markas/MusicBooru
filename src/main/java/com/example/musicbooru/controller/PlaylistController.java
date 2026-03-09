@@ -1,6 +1,8 @@
 package com.example.musicbooru.controller;
 
+import com.example.musicbooru.dto.AddTrackToPlaylistRequest;
 import com.example.musicbooru.dto.CreatePlaylistRequest;
+import com.example.musicbooru.dto.PlaylistResponse;
 import com.example.musicbooru.model.Playlist;
 import com.example.musicbooru.model.User;
 import com.example.musicbooru.service.PlaylistService;
@@ -32,22 +34,23 @@ public class PlaylistController {
         return ResponseEntity.ok(playlistService.getPlaylistsByOwner(user));
     }
 
-    @PostMapping("/{playlistId}/add/{trackId}")
-    public ResponseEntity<Playlist> addTrackToPlaylist(
+    @PostMapping("/{playlistId}/track")
+    public ResponseEntity<PlaylistResponse> addTrack(
             @PathVariable String playlistId,
-            @PathVariable String trackId,
+            @RequestBody AddTrackToPlaylistRequest request,
             @AuthenticationPrincipal User user) {
 
-        return ResponseEntity.ok(playlistService.addTrackToPlaylist(playlistId, trackId, user));
+        return ResponseEntity.ok(playlistService.addTrack(playlistId, request.trackId(), user));
     }
 
-    @DeleteMapping("/{playlistId}/remove/{trackId}")
-    public ResponseEntity<Playlist> removeTrackFromPlaylist(
+    @DeleteMapping("/{playlistId}/track/{entryId}")
+    public ResponseEntity<PlaylistResponse> removeTrack(
             @PathVariable String playlistId,
-            @PathVariable String trackId,
+            @PathVariable String entryId,
             @AuthenticationPrincipal User user) {
 
-        return ResponseEntity.ok(playlistService.removeTrackFromPlaylist(playlistId, trackId, user));
+        playlistService.removeTrack(playlistId, entryId, user);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{playlistId}")
