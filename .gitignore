@@ -32,8 +32,7 @@ build/
 ### VS Code ###
 .vscode/
 
-library/
+musicbooru/
 sample_library/
-artwork/
-requests.http
+test_requests/
 musicbooru.log*
