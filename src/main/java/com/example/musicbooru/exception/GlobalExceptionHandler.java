@@ -22,7 +22,7 @@ public class GlobalExceptionHandler {
         logger.error("Exception occurred: {}, Request Details: {}", e.getMessage(), request.getRequestURI(), e);
 
         ErrorResponse errorResponse = new ErrorResponse(
-                e.getStatus().value(),
+                e.getStatus(),
                 e.getMessage(),
                 request.getRequestURI()
         );
@@ -38,7 +38,7 @@ public class GlobalExceptionHandler {
         logger.error("Invalid argument: {}, Request Details: {}", e.getMessage(), request.getRequestURI(), e);
 
         ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST,
                 e.getMessage(),
                 request.getRequestURI()
         );
@@ -54,7 +54,7 @@ public class GlobalExceptionHandler {
         logger.error("Resource not found: {}, Request Details: {}", e.getMessage(), request.getRequestURI(), e);
 
         ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.NOT_FOUND.value(),
+                HttpStatus.NOT_FOUND,
                 e.getMessage(),
                 request.getRequestURI()
         );

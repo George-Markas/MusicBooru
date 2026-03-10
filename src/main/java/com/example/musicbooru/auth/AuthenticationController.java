@@ -18,7 +18,7 @@ public class AuthenticationController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
         AuthenticationResponse authenticationResponse = authenticationService.register(request);
-        return ResponseEntity.status(authenticationResponse.statusCode())
+        return ResponseEntity.status(authenticationResponse.status())
                 .header(HttpHeaders.SET_COOKIE, authenticationResponse.cookieString())
                 .body(authenticationResponse);
     }
@@ -26,7 +26,7 @@ public class AuthenticationController {
     @PostMapping("/authenticate")
     public ResponseEntity<?> authenticate(@RequestBody AuthenticationRequest request) {
         AuthenticationResponse authenticationResponse = authenticationService.authenticate(request);
-        return ResponseEntity.status(authenticationResponse.statusCode())
+        return ResponseEntity.status(authenticationResponse.status())
                 .header(HttpHeaders.SET_COOKIE, authenticationResponse.cookieString())
                 .body(authenticationResponse);
     }
@@ -34,7 +34,7 @@ public class AuthenticationController {
     @PostMapping("/logout")
     public ResponseEntity<?> logout() {
         AuthenticationResponse authenticationResponse = authenticationService.logout();
-        return ResponseEntity.status(authenticationResponse.statusCode())
+        return ResponseEntity.status(authenticationResponse.status())
                 .header(HttpHeaders.SET_COOKIE, authenticationResponse.cookieString())
                 .body(authenticationResponse);
     }
