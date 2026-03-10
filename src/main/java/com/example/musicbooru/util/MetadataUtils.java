@@ -41,13 +41,13 @@ public class MetadataUtils {
             String title = this.tag.getFirst(FieldKey.TITLE);
 
             if (artist.isBlank() || title.isBlank()) {
-                logger.warn("Field is blank; using UUID for filename");
+                logger.warn("Blank field; using UUID for filename");
                 return null;
             }
 
             return String.format("%s - %s%s", artist, title, AUDIO_EXTENSION);
         } catch (KeyNotFoundException e) {
-            logger.warn("Field does not exist; using UUID for filename", e);
+            logger.warn("Missing field; using UUID for filename", e);
             return null;
         }
     }

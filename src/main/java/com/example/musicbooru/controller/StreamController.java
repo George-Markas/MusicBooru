@@ -2,7 +2,6 @@ package com.example.musicbooru.controller;
 
 import com.example.musicbooru.exception.GenericException;
 import com.example.musicbooru.exception.ResourceNotFoundException;
-import com.example.musicbooru.model.Track;
 import com.example.musicbooru.service.TrackService;
 import com.example.musicbooru.util.HeaderUtils;
 import lombok.AllArgsConstructor;
@@ -30,17 +29,14 @@ public class StreamController {
     private final TrackService trackService;
 
     @GetMapping("/{trackId}")
-    public ResponseEntity<Resource> serveResource(
+    public ResponseEntity<Resource> streamTrack(
             @PathVariable String trackId,
             @RequestHeader(value = HttpHeaders.IF_MATCH, required = false) String ifMatch,
             @RequestHeader(value = HttpHeaders.IF_NONE_MATCH, required = false) String ifNoneMatch,
             @RequestHeader(value = HttpHeaders.IF_MODIFIED_SINCE, required = false) String ifModifiedSince,
             @RequestHeader(value = HttpHeaders.IF_UNMODIFIED_SINCE, required = false) String ifUnmodifiedSince) {
 
-        Track track = trackService.getTrackById(trackId)
-                .orElseThrow(() -> new ResourceNotFoundException("Track '" + trackId + "' not found"));
-
-        String fileName = track.getFileName();
+        String fileName = trackService.getFileName(trackId).getFileName();
 
         Path filePath = Path.of(LIBRARY + fileName);
         if (Files.notExists(filePath)) {
@@ -106,7 +102,7 @@ public class StreamController {
                             + URLEncoder.encode(fileName, StandardCharsets.UTF_8) + "\"")
                     .body(resource);
         } catch (IOException e) {
-            throw new GenericException("An unexpected error occurred");
+            throw new GenericException("Could not stream track");
         }
     }
 }
