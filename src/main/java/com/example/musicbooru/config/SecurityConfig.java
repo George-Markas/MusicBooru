@@ -31,7 +31,8 @@ public class SecurityConfig {
             public void addCorsMappings(@NonNull CorsRegistry registry) {
                 registry.addMapping("/**")
                         .allowedMethods("GET", "POST", "PUT", "DELETE")
-                        .allowedOrigins("*");
+                        .allowedOrigins("http://localhost:5173")
+                        .allowCredentials(true);
             }
         };
     }
@@ -42,9 +43,6 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/register").hasAuthority(Role.ADMIN.name())
                         .requestMatchers("/api/track/upload").hasAuthority(Role.ADMIN.name())
                         .requestMatchers("/api/track/delete").hasAuthority(Role.ADMIN.name())
-                        .requestMatchers("/api/track/**").permitAll()
-                        .requestMatchers("/api/track/art/**").permitAll()
-                        .requestMatchers("/api/playlist/**").authenticated()
                         .requestMatchers("/api/auth/authenticate").permitAll()
                         .anyRequest().authenticated()
                 )
