@@ -6,11 +6,18 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface TrackRepository extends JpaRepository<Track, UUID> {
 
     boolean existsByFileName(String fileName);
+
+    interface FileNameOnly {
+        String getFileName();
+    }
+
+    Optional<FileNameOnly> findProjectedById(UUID trackId);
 
     @Query(value = """
             SELECT * FROM track

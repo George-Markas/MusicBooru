@@ -35,7 +35,7 @@ public class PlaylistController {
     }
 
     @PostMapping("/{playlistId}/track")
-    public ResponseEntity<PlaylistResponse> addTrack(
+    public ResponseEntity<PlaylistResponse> addTrackToPlaylist(
             @PathVariable String playlistId,
             @RequestBody AddTrackToPlaylistRequest request,
             @AuthenticationPrincipal User user) {
@@ -44,7 +44,7 @@ public class PlaylistController {
     }
 
     @DeleteMapping("/{playlistId}/track/{entryId}")
-    public ResponseEntity<PlaylistResponse> removeTrack(
+    public ResponseEntity<PlaylistResponse> removeTrackFromPlaylist(
             @PathVariable String playlistId,
             @PathVariable String entryId,
             @AuthenticationPrincipal User user) {

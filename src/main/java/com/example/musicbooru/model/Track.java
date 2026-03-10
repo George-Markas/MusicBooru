@@ -5,8 +5,6 @@ import lombok.*;
 
 import java.util.UUID;
 
-import static com.example.musicbooru.util.Commons.AUDIO_EXTENSION;
-
 @Data
 @Entity
 @Builder
@@ -25,10 +23,4 @@ public class Track {
 
     @Column(unique = true)
     private String fileName;
-
-    @PrePersist
-    public void prePersist() {
-        if (this.id == null) this.id = UUID.randomUUID();
-        if (this.fileName == null) this.fileName = this.id + AUDIO_EXTENSION;
-    }
 }

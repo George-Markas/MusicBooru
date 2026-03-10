@@ -45,21 +45,17 @@ public class TrackService {
         return trackRepository.findById(UUID.fromString(trackId));
     }
 
-    public void addTrack(MultipartFile file) {
-        try {
-            // Create directories for the audio files and accompanying artwork
-            Files.createDirectories(Path.of(LIBRARY));
-            Files.createDirectories(Path.of(ARTWORK));
-        } catch (IOException e) {
-            throw new GenericException("Could not create directory");
-        }
+    public TrackRepository.FileNameOnly getFileName(String trackId) {
+        return trackRepository.findProjectedById(UUID.fromString(trackId))
+                .orElseThrow(() -> new ResourceNotFoundException("Track '" + trackId + "' not found"));
+    }
 
+    public Track addTrack(MultipartFile file) {
         try {
             // Save song as temporary file for metadata extraction
             Path temp = Files.createTempFile(null, AUDIO_EXTENSION);
             Files.copy(file.getInputStream(), temp, StandardCopyOption.REPLACE_EXISTING);
 
-            // Generate filename from metadata
             MetadataUtils metadataUtils = new MetadataUtils(temp.toFile());
             String fileName = metadataUtils.generateFileName();
             if (fileName != null && trackRepository.existsByFileName(fileName)) {
@@ -67,32 +63,29 @@ public class TrackService {
                 fileName = null;
             }
 
-            // Create database entry
+            UUID trackId = UUID.randomUUID();
+
             Track track = Track.builder()
+                    .id(trackId)
                     .title(metadataUtils.getTitle())
                     .artist(metadataUtils.getArtist())
                     .album(metadataUtils.getAlbum())
                     .genre(metadataUtils.getGenre())
                     .year(metadataUtils.getYear())
-                    .fileName(fileName)
+                    .fileName((fileName != null) ? fileName : trackId + AUDIO_EXTENSION)
                     .build();
 
-            trackRepository.save(track);
+            metadataUtils.extractArtwork(String.valueOf(trackId));
 
-            // Extract cover art
-            metadataUtils.extractArtwork(String.valueOf(track.getId()));
-
-            // Move song to the library directory
-            Path target = Paths.get(LIBRARY + track.getFileName());
-            if (Files.exists(target)) {
-                // TODO Take care of the artwork when overwriting
+            Path destination = Paths.get(LIBRARY + track.getFileName());
+            if (Files.exists(destination)) {
                 logger.warn("File '{}' already exists and will be overwritten", track.getFileName());
             }
-            Files.move(temp, target, StandardCopyOption.REPLACE_EXISTING);
+            Files.move(temp, destination, StandardCopyOption.REPLACE_EXISTING);
 
-            logger.info("Added track '{}'", track.getId());
+            return trackRepository.save(track);
         } catch (IOException e) {
-            throw new GenericException("An unexpected error occurred");
+            throw new GenericException("Could not add track");
         }
     }
 
@@ -104,7 +97,6 @@ public class TrackService {
             Files.deleteIfExists(Paths.get(ARTWORK + trackId + ARTWORK_EXTENSION));
             Files.deleteIfExists(Paths.get(LIBRARY + track.getFileName()));
             trackRepository.delete(track);
-            logger.info("Deleted track '{}'", trackId);
         } catch (IOException e) {
             throw new GenericException("Could not delete track");
         }

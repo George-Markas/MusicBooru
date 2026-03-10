@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +29,7 @@ public class TrackController {
 
     private final TrackService trackService;
 
-    @GetMapping("/")
+    @GetMapping
     public ResponseEntity<List<Track>> getTracks() {
         return ResponseEntity.ok(trackService.getTracks());
     }
@@ -50,18 +51,16 @@ public class TrackController {
         return ResponseEntity.ok(track);
     }
 
-    @PostMapping("/upload")
-    public ResponseEntity<String> uploadTrack(@RequestPart("file") MultipartFile file) {
-        trackService.addTrack(file);
-
-        return ResponseEntity.ok("Track uploaded");
+    @PostMapping
+    public ResponseEntity<Track> uploadTrack(@RequestPart("file") MultipartFile file) {
+        Track track = trackService.addTrack(file);
+        return ResponseEntity.status(HttpStatus.CREATED).body(track);
     }
 
-    @DeleteMapping("/delete/{trackId}")
+    @DeleteMapping("/{trackId}")
     public ResponseEntity<String> deleteTrack(@PathVariable String trackId) {
         trackService.removeTrack(trackId);
-
-        return ResponseEntity.ok("Track deleted");
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/art/{trackId}")
@@ -85,13 +84,11 @@ public class TrackController {
     @GetMapping("/search")
     public ResponseEntity<List<Track>> searchTracks(@RequestParam String query) {
         List<Track> results = trackService.searchTracks(query);
-
         return ResponseEntity.ok(results);
     }
 
-
     @Profile("dev")
-    @PostMapping("/upload/batch")
+    @PostMapping("/batch")
     public ResponseEntity<String> uploadTracks(@RequestParam("file") List<MultipartFile> files) {
         for (MultipartFile file : files) {
             trackService.addTrack(file);
@@ -101,13 +98,13 @@ public class TrackController {
     }
 
     @Profile("dev")
-    @DeleteMapping("/delete/purge")
+    @DeleteMapping("/batch")
     public ResponseEntity<String> deleteAllTracks() {
         List<Track> tracks = trackService.getTracks();
         for (Track track : tracks) {
             trackService.removeTrack(String.valueOf(track.getId()));
         }
 
-        return ResponseEntity.ok("Purged all tracks");
+        return ResponseEntity.ok("Deleted all tracks");
     }
 }
