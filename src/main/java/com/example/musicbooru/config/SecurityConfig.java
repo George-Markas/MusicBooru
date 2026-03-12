@@ -48,8 +48,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(req -> req
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/auth/register").hasAuthority(Role.ADMIN.name())
-                        .requestMatchers("/api/track/upload").hasAuthority(Role.ADMIN.name())
-                        .requestMatchers("/api/track/delete").hasAuthority(Role.ADMIN.name())
+                        .requestMatchers(HttpMethod.POST, "/api/track/").hasAuthority(Role.ADMIN.name())
+                        .requestMatchers(HttpMethod.DELETE, "/api/track/").hasAuthority(Role.ADMIN.name())
                         .requestMatchers("/api/auth/authenticate").permitAll()
                         .anyRequest().authenticated()
                 )
