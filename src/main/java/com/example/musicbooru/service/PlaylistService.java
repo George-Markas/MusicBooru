@@ -3,28 +3,33 @@ package com.example.musicbooru.service;
 import com.example.musicbooru.dto.PlaylistResponse;
 import com.example.musicbooru.exception.GenericException;
 import com.example.musicbooru.exception.ResourceNotFoundException;
-import com.example.musicbooru.model.Playlist;
-import com.example.musicbooru.model.PlaylistEntry;
-import com.example.musicbooru.model.Track;
-import com.example.musicbooru.model.User;
+import com.example.musicbooru.model.*;
 import com.example.musicbooru.repository.PlaylistEntryRepository;
 import com.example.musicbooru.repository.PlaylistRepository;
 import com.example.musicbooru.repository.TrackRepository;
+import com.example.musicbooru.util.ContentUtils;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+
+import static com.example.musicbooru.util.Commons.ICON;
+import static com.example.musicbooru.util.Commons.ICON_EXTENSION;
 
 @Service
 @RequiredArgsConstructor
 public class PlaylistService {
-
-    private final static Logger logger = LoggerFactory.getLogger(PlaylistService.class);
 
     private final PlaylistRepository playlistRepository;
     private final PlaylistEntryRepository playlistEntryRepository;
@@ -39,6 +44,12 @@ public class PlaylistService {
         }
 
         return playlist;
+    }
+
+    public boolean playlistExists(String playlistId, User requester) {
+        Optional<Playlist> playlist = playlistRepository.findById(UUID.fromString(playlistId));
+        return playlist.isPresent() && (playlist.get().getOwner().getId().equals(requester.getId())
+                || requester.getRole().equals(Role.ADMIN));
     }
 
     public List<Playlist> getPlaylistsByOwner(User owner) {
@@ -82,8 +93,31 @@ public class PlaylistService {
         playlistRepository.save(playlist);
     }
 
+    public void addIcon(MultipartFile file, String playlistId, User requester) {
+        if (playlistExists(playlistId, requester)) {
+            try {
+                BufferedImage bufferedImage = ContentUtils.convertToJpeg(file);
+                ImageIO.write(bufferedImage, "jpg", new File(ICON + playlistId + ICON_EXTENSION));
+            } catch (IOException e) {
+                throw new GenericException("Image I/O error");
+            }
+        } else {
+            throw new GenericException("Could not set icon for playlist");
+        }
+    }
+
+    public void removeIcon(String playlistId, User requester) {
+        if (playlistExists(playlistId, requester)) {
+            try {
+                Files.deleteIfExists(Paths.get(ICON + playlistId + ICON_EXTENSION));
+            } catch (IOException e) {
+                throw new GenericException("Could not delete playlist icon");
+            }
+        }
+    }
+
     public void deletePlaylist(String playlistId, User requester) {
         playlistRepository.delete(getPlaylist(playlistId, requester));
-        logger.info("Deleted playlist '{}'", playlistId);
+        removeIcon(playlistId, requester);
     }
 }

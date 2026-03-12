@@ -25,7 +25,7 @@ import static com.example.musicbooru.util.Commons.*;
 @RequiredArgsConstructor
 public class TrackService {
 
-    private final static Logger logger = LoggerFactory.getLogger(TrackService.class);
+    private static final Logger logger = LoggerFactory.getLogger(TrackService.class);
 
     private final TrackRepository trackRepository;
 

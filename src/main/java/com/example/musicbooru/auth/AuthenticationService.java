@@ -45,7 +45,7 @@ public class AuthenticationService {
         return new AuthenticationResponse(
                 jwtCookieString,
                 HttpStatus.OK,
-                "User registered successfully"
+                "User registered"
         );
     }
 
@@ -73,7 +73,7 @@ public class AuthenticationService {
         return new AuthenticationResponse(
                 jwtCookieString,
                 HttpStatus.OK,
-                "Login success"
+                "Logged in"
         );
     }
 
@@ -82,7 +82,7 @@ public class AuthenticationService {
         return new AuthenticationResponse(
                 jwtCookieString,
                 HttpStatus.OK,
-                "Logout success"
+                "Logged out"
         );
     }
 }

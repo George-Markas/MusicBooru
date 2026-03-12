@@ -58,12 +58,12 @@ public class TrackController {
     }
 
     @DeleteMapping("/{trackId}")
-    public ResponseEntity<String> deleteTrack(@PathVariable String trackId) {
+    public ResponseEntity<?> deleteTrack(@PathVariable String trackId) {
         trackService.removeTrack(trackId);
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/art/{trackId}")
+    @GetMapping("/{trackId}/art")
     public ResponseEntity<Resource> getArtwork(@PathVariable String trackId) {
         if (!trackService.trackExists(trackId)) {
             throw new ResourceNotFoundException("Could not fetch artwork; track '" + trackId + "' not found");

@@ -18,7 +18,7 @@ public class FirstDeploymentSetup implements ApplicationRunner {
     private static final List<Path> APP_DIRECTORIES = List.of(
             Paths.get(LIBRARY),
             Paths.get(ARTWORK),
-            Paths.get(PLAYLIST_ICON)
+            Paths.get(ICON)
     );
 
     @Override

@@ -21,7 +21,7 @@ import static com.example.musicbooru.util.Commons.*;
 
 public class MetadataUtils {
 
-    private final static Logger logger = LoggerFactory.getLogger(MetadataUtils.class);
+    private static final Logger logger = LoggerFactory.getLogger(MetadataUtils.class);
 
     private final AudioFile audioFile;
     private final Tag tag;

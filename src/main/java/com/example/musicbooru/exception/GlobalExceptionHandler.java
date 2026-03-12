@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    private final static Logger logger  =  LoggerFactory.getLogger(GlobalExceptionHandler.class);
+    private static final Logger logger  =  LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(GenericException.class)
     public ResponseEntity<ErrorResponse> handleGenericException(
