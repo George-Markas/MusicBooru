@@ -1,12 +1,10 @@
-import { BASE_URL } from "./common"
+import { api, BASE_URL } from "./common"
 
 export async function get_tracks(): Promise<any> {
-    const path = `${BASE_URL}/track`
+    const path = `track`
 
-    const response = await fetch(path, {
-        method: 'GET',
-        headers: {'Content-Type': 'application/json'},
-        credentials: 'include',
+    const response = await api(path, {
+        method: 'GET'
     });
 
     return response;

@@ -8,7 +8,7 @@
     async function handleLogout() {
         try {
             const response = await logout();
-            if (response.status == 200) {app.page = 'login'; console.log(response.data);}
+            if (response.ok) {app.page = 'login'; console.log(response.data);}
         } catch (error) {
             console.error(error);
         }

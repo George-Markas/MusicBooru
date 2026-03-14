@@ -14,7 +14,7 @@
 
         try {
             const response = await authenticate({username, password});
-            if (response.status == 200) {app.page = 'home'; console.log(response.data);}
+            if (response.ok) {app.page = 'home'; console.log(response.data);}
         } catch (error) {
             console.error(error);
         }
