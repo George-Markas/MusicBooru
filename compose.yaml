@@ -1,0 +1,24 @@
+services:
+  db:
+    container_name: db
+    image: postgres:alpine
+    environment:
+      - POSTGRES_DB=musicbooru
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    ports:
+      - "${DB_PORT}:5432"
+
+  app:
+    container_name: app
+    build:
+      context: .
+    depends_on:
+      - db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/musicbooru
+      - SPRING_DATASOURCE_USERNAME=${DB_USER}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=validate
+    ports:
+      - "${APP_PORT}:8080"
