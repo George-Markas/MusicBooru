@@ -1,6 +1,7 @@
 package org.example.musicbooru.track;
 
 import jakarta.persistence.*;
+import org.example.musicbooru.util.PublicIdGenerator;
 
 @Entity
 public class Track {
@@ -20,4 +21,9 @@ public class Track {
 
     @Column(nullable = false, unique = true)
     private String filename;
+
+    @PrePersist
+    private void generatePublicId() {
+        this.publicId = PublicIdGenerator.generate();
+    }
 }

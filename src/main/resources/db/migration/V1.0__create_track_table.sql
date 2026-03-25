@@ -5,7 +5,7 @@ CREATE TABLE track
     artist    VARCHAR(255),
     title     VARCHAR(255),
     album     VARCHAR(255),
-    year      VARCHAR(10), -- The longest supported format is '1970-01-01'
+    year      VARCHAR(10), -- The longest supported format is 'yyyy-MM-dd' e.g. 2010-11-22
     genre     VARCHAR(255),
     duration  INT,
     filename  VARCHAR(255) NOT NULL,
