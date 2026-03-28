@@ -7,7 +7,7 @@ import org.example.musicbooru.util.PublicIdGenerator;
 public class Track {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
     @Column(nullable = false, unique = true, length = 7, columnDefinition = "bpchar(7)")
     private String publicId;
@@ -21,6 +21,9 @@ public class Track {
 
     @Column(nullable = false, unique = true)
     private String filename;
+
+    @Column(nullable = false)
+    private String mimeType;
 
     @PrePersist
     private void generatePublicId() {

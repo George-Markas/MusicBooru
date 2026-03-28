@@ -24,7 +24,7 @@ services:
   app:
     container_name: app
     build:
-      context: .
+      context: ./
     depends_on:
       - db
       - garage
