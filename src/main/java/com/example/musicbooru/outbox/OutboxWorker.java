@@ -1,10 +1,16 @@
 package com.example.musicbooru.outbox;
 
+import com.example.musicbooru.config.RabbitConfig;
 import com.example.musicbooru.track.TrackRepository;
 import com.example.musicbooru.track.TrackStatus;
+import com.rabbitmq.client.Channel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.support.AmqpHeaders;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,7 +22,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
+import java.time.Instant;
 
 @Component
 @Slf4j
@@ -28,6 +34,7 @@ public class OutboxWorker {
     private final OutboxEventRepository outboxEventRepository;
     private final TrackRepository trackRepository;
     private final S3Client s3Client;
+    private final RabbitTemplate rabbitTemplate;
 
     @Value("${garage.bucket-artwork}")
     private String artworkBucket;
@@ -35,29 +42,51 @@ public class OutboxWorker {
     @Value("${garage.bucket-library}")
     private String libraryBucket;
 
-    @Scheduled(fixedDelay = 10_000)
+    @RabbitListener(queues = RabbitConfig.QUEUE)
     @Transactional
-    public void processPending() {
-        List<OutboxEvent> events = outboxEventRepository
-                .findByStatusAndAttemptsLessThan(OutboxStatus.PENDING, MAX_ATTEMPTS);
+    public void processEvent(OutboxMessage message, Channel channel,
+                             @Header(AmqpHeaders.DELIVERY_TAG) Long deliveryTag) throws IOException {
 
-        for (OutboxEvent event : events) {
-            try {
-                uploadToS3(event);
-                markTrackReady(event.getTrackId());
-                event.setStatus(OutboxStatus.DONE);
-                log.info("Track '{}' added", event.getTrackPublicId());
-            } catch (RuntimeException e) {
-                log.error("Outbox processing failed for event '{}'", event.getId(), e);
-                event.updateAttempts();
-                if (event.getAttempts() >= MAX_ATTEMPTS) {
-                    event.setStatus(OutboxStatus.FAILED);
-                    markTrackFailed(event.getTrackId());
-                }
-            }
+        OutboxEvent event = outboxEventRepository.findById(message.outboxEventId())
+                .orElse(null);
 
-            outboxEventRepository.save(event);
+        if (event == null || event.getStatus() != OutboxStatus.PENDING) {
+            channel.basicAck(deliveryTag, false); // Already handled or gone
+            return;
         }
+
+        try {
+            uploadToS3(event);
+            markTrackReady(event.getTrackId());
+            event.setStatus(OutboxStatus.DONE);
+            outboxEventRepository.save(event);
+            channel.basicAck(deliveryTag, false);
+            log.info("Track '{}' added", event.getTrackPublicId());
+        } catch (RuntimeException e) {
+            log.error("Outbox processing failed for event '{}'", event.getId(), e);
+            event.updateAttempts();
+
+            if (event.getAttempts() >= MAX_ATTEMPTS) {
+                event.setStatus(OutboxStatus.FAILED);
+                markTrackFailed(event.getTrackId());
+            }
+            outboxEventRepository.save(event);
+            channel.basicNack(deliveryTag, false, false);
+        }
+    }
+
+    // Republishes "stuck" events every 5 minutes. Events with a 'PENDING' status
+    // that are older than a minute are considered "stuck".
+    @Scheduled(fixedDelay = 300_000)
+    public void recoverStuck() {
+        Instant threshold = Instant.now().minusSeconds(60);
+        outboxEventRepository
+                .findByStatusAndCreatedAtBefore(OutboxStatus.PENDING, threshold)
+                .forEach(event -> rabbitTemplate.convertAndSend(
+                        RabbitConfig.EXCHANGE,
+                        RabbitConfig.ROUTING_KEY,
+                        new OutboxMessage(event.getId())
+                ));
     }
 
     private void uploadToS3(OutboxEvent event) {
