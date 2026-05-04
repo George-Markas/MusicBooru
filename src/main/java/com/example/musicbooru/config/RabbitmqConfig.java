@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
 @Configuration
-public class RabbitConfig {
+public class RabbitmqConfig {
 
     public static final String EXCHANGE = "outbox.exchange";
     public static final String QUEUE = "outbox.track.process";

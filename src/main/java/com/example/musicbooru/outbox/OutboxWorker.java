@@ -1,6 +1,6 @@
 package com.example.musicbooru.outbox;
 
-import com.example.musicbooru.config.RabbitConfig;
+import com.example.musicbooru.config.RabbitmqConfig;
 import com.example.musicbooru.track.TrackRepository;
 import com.example.musicbooru.track.TrackStatus;
 import com.rabbitmq.client.Channel;
@@ -42,7 +42,7 @@ public class OutboxWorker {
     @Value("${garage.bucket-library}")
     private String libraryBucket;
 
-    @RabbitListener(queues = RabbitConfig.QUEUE)
+    @RabbitListener(queues = RabbitmqConfig.QUEUE)
     @Transactional
     public void processEvent(OutboxMessage message, Channel channel,
                              @Header(AmqpHeaders.DELIVERY_TAG) Long deliveryTag) throws IOException {
@@ -83,8 +83,8 @@ public class OutboxWorker {
         outboxEventRepository
                 .findByStatusAndCreatedAtBefore(OutboxStatus.PENDING, threshold)
                 .forEach(event -> rabbitTemplate.convertAndSend(
-                        RabbitConfig.EXCHANGE,
-                        RabbitConfig.ROUTING_KEY,
+                        RabbitmqConfig.EXCHANGE,
+                        RabbitmqConfig.ROUTING_KEY,
                         new OutboxMessage(event.getId())
                 ));
     }

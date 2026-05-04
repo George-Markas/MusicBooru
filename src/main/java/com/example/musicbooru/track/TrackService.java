@@ -1,6 +1,6 @@
 package com.example.musicbooru.track;
 
-import com.example.musicbooru.config.RabbitConfig;
+import com.example.musicbooru.config.RabbitmqConfig;
 import com.example.musicbooru.exception.GenericException;
 import com.example.musicbooru.exception.ResourceNotFoundException;
 import com.example.musicbooru.outbox.OutboxEvent;
@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +23,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -120,8 +122,8 @@ public class TrackService {
                         @Override
                         public void afterCommit() {
                             rabbitTemplate.convertAndSend(
-                                    RabbitConfig.EXCHANGE,
-                                    RabbitConfig.ROUTING_KEY,
+                                    RabbitmqConfig.EXCHANGE,
+                                    RabbitmqConfig.ROUTING_KEY,
                                     new OutboxMessage(event.getId())
                             );
                         }
@@ -161,6 +163,33 @@ public class TrackService {
             outboxEventRepository.deleteByTrackId(track.getId());
             trackRepository.delete(track);
             log.info("Track '{}' removed", track.getPublicId());
+        }
+    }
+
+    @Profile("dev")
+    @Transactional
+    public void removeAllTracks() {
+        outboxEventRepository.deleteAll();
+        trackRepository.deleteAll();
+        emptyS3Bucket(libraryBucket);
+        emptyS3Bucket(artworkBucket);
+        log.info("Removed all tracks");
+    }
+
+    @Profile("dev")
+    private void emptyS3Bucket(String bucket) {
+        List<ObjectIdentifier> objects = new ArrayList<>();
+        s3Client.listObjectsV2Paginator(r -> r.bucket(bucket))
+                .contents()
+                .forEach(obj -> objects.add(
+                        ObjectIdentifier.builder().key(obj.key()).build()
+                ));
+
+        if (!objects.isEmpty()) {
+            s3Client.deleteObjects(r -> r
+                    .bucket(bucket)
+                    .delete(d -> d.objects(objects))
+            );
         }
     }
 }
