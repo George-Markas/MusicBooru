@@ -1,6 +1,7 @@
 package com.example.musicbooru.outbox;
 
 import com.example.musicbooru.config.RabbitmqConfig;
+import com.example.musicbooru.exception.GenericException;
 import com.example.musicbooru.track.TrackRepository;
 import com.example.musicbooru.track.TrackStatus;
 import com.rabbitmq.client.Channel;
@@ -21,7 +22,6 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Instant;
 
 @Component
@@ -35,6 +35,7 @@ public class OutboxWorker {
     private final TrackRepository trackRepository;
     private final S3Client s3Client;
     private final RabbitTemplate rabbitTemplate;
+    private final TranscodingWorker transcodingWorker;
 
     @Value("${garage.bucket-artwork}")
     private String artworkBucket;
@@ -90,26 +91,40 @@ public class OutboxWorker {
     }
 
     private void uploadToS3(OutboxEvent event) {
-        if (event.getArtworkPath() != null) {
+        // Generally we prefer to use Optional over assigning null, however OutboxEvent's
+        // audioPath is not nullable, thus it'd be redundant and somewhat annoying to deal
+        // with the isPresent check warning when passing audioPath to PutObjectRequestBuilder.
+        Path audioPath = null;
+        Path userUpload = Path.of(event.getAudioPath());
+        try {
+            audioPath = event.isNeedsTranscoding()
+                    ? transcodingWorker.transcode(userUpload)
+                    : userUpload;
+
+            if (event.getArtworkPath() != null) {
+                s3Client.putObject(
+                        PutObjectRequest.builder()
+                                .bucket(artworkBucket)
+                                .key(event.getTrackPublicId())
+                                .build(),
+                        RequestBody.fromFile(Path.of(event.getArtworkPath()))
+                );
+            }
+
             s3Client.putObject(
                     PutObjectRequest.builder()
-                            .bucket(artworkBucket)
+                            .bucket(libraryBucket)
                             .key(event.getTrackPublicId())
                             .build(),
-                    RequestBody.fromFile(Path.of(event.getArtworkPath()))
+                    RequestBody.fromFile(audioPath)
             );
+        } catch (IOException | InterruptedException e) {
+            throw new GenericException(e.getMessage(), e);
+        } finally {
+            deleteTempFile(userUpload);
+            if (audioPath != null && !audioPath.equals(userUpload)) deleteTempFile(audioPath);
+            if (event.getArtworkPath() != null) deleteTempFile(Path.of(event.getArtworkPath()));
         }
-
-        s3Client.putObject(
-                PutObjectRequest.builder()
-                        .bucket(libraryBucket)
-                        .key(event.getTrackPublicId())
-                        .build(),
-                RequestBody.fromFile(Path.of(event.getAudioPath()))
-        );
-
-        deleteTempFile(event.getAudioPath());
-        if (event.getArtworkPath() != null) deleteTempFile(event.getArtworkPath());
     }
 
     private void markTrackReady(Long trackId) {
@@ -126,9 +141,9 @@ public class OutboxWorker {
         });
     }
 
-    private void deleteTempFile(String path) {
+    private void deleteTempFile(Path path) {
         try {
-            Files.deleteIfExists(Paths.get(path));
+            Files.deleteIfExists(path);
         } catch (IOException e) {
             log.warn("Could not clean up temporary file '{}'", path, e);
         }

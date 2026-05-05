@@ -5,6 +5,7 @@ CREATE TABLE outbox_event
     track_public_id   bpchar(7)  NOT NULL,
     audio_path        VARCHAR    NOT NULL,
     artwork_path      VARCHAR,
+    needs_transcoding BOOLEAN    NOT NULL DEFAULT FALSE,
     status            VARCHAR(7) NOT NULL DEFAULT 'PENDING', -- 'PENDING', 'DONE', 'FAILED'
     attempts          INT        NOT NULL DEFAULT 0,
     created_at        TIMESTAMP  NOT NULL,
