@@ -13,7 +13,7 @@ import org.springframework.amqp.support.AmqpHeaders;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -24,10 +24,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 
-@Component
+@Service
 @Slf4j
 @RequiredArgsConstructor
-public class OutboxWorker {
+public class OutboxService {
 
     private static final int MAX_ATTEMPTS = 3;
 
@@ -35,7 +35,7 @@ public class OutboxWorker {
     private final TrackRepository trackRepository;
     private final S3Client s3Client;
     private final RabbitTemplate rabbitTemplate;
-    private final TranscodingWorker transcodingWorker;
+    private final TranscodingService transcodingService;
 
     @Value("${garage.bucket-artwork}")
     private String artworkBucket;
@@ -70,6 +70,9 @@ public class OutboxWorker {
             if (event.getAttempts() >= MAX_ATTEMPTS) {
                 event.setStatus(OutboxStatus.FAILED);
                 markTrackFailed(event.getTrackId());
+                outboxEventRepository.save(event);
+                channel.basicNack(deliveryTag, false, false);
+                throw new GenericException("Could not process the uploaded content", e);
             }
             outboxEventRepository.save(event);
             channel.basicNack(deliveryTag, false, false);
@@ -91,14 +94,13 @@ public class OutboxWorker {
     }
 
     private void uploadToS3(OutboxEvent event) {
-        // Generally we prefer to use Optional over assigning null, however OutboxEvent's
-        // audioPath is not nullable, thus it'd be redundant and somewhat annoying to deal
-        // with the isPresent check warning when passing audioPath to PutObjectRequestBuilder.
         Path audioPath = null;
         Path userUpload = Path.of(event.getAudioPath());
         try {
+            // If the audio file has been marked for transcoding, pass it to TranscodingService
+            // and get the path to the transcoded output, otherwise use it as is.
             audioPath = event.isNeedsTranscoding()
-                    ? transcodingWorker.transcode(userUpload)
+                    ? transcodingService.transcode(userUpload)
                     : userUpload;
 
             if (event.getArtworkPath() != null) {
