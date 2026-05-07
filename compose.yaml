@@ -11,7 +11,7 @@ services:
 
   garage:
     container_name: garage
-    image: dxflrs/garage:v2.2.0
+    image: dxflrs/garage:v2.3.0
     volumes:
       - ./garage.toml:/etc/garage.toml
       - garage-meta:/var/lib/garage/meta
@@ -24,12 +24,12 @@ services:
   rabbitmq:
     container_name: rabbitmq
     image: rabbitmq:4.3.0-management-alpine
-    ports:
-      - "5672:5672"
-      - "15672:15672"
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:-guest}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:-guest}
+    ports:
+    - "5672:5672"
+    - "15672:15672"
 
   app:
     container_name: app
@@ -38,6 +38,7 @@ services:
     depends_on:
       - db
       - garage
+      - rabbitmq
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/musicbooru
       - SPRING_DATASOURCE_USERNAME=${DB_USER}

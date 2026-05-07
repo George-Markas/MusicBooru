@@ -123,7 +123,7 @@ public class TrackService {
             outboxEventRepository.save(event);
 
             // Send message to the exchange. We need the outbox event to be committed
-            // to the database before the message is published so the worker can find it, hence
+            // to the database before the message is published so the OutboxService can find it, hence
             // the TransactionSynchronization.
             TransactionSynchronizationManager.registerSynchronization(
                     new TransactionSynchronization() {
@@ -181,7 +181,7 @@ public class TrackService {
         trackRepository.deleteAll();
         emptyS3Bucket(libraryBucket);
         emptyS3Bucket(artworkBucket);
-        log.info("Removed all tracks");
+        log.debug("Removed all tracks");
     }
 
     @Profile("dev")
