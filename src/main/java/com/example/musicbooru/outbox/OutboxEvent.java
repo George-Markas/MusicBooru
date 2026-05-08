@@ -27,20 +27,16 @@ public class OutboxEvent {
 
     private String artworkPath;
 
+    @Column(nullable = false)
+    private boolean needsTranscoding;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private OutboxStatus status;
 
     @Column(nullable = false)
-    private int attempts;
+    private int retries;
 
     @Column(nullable = false)
     private Instant createdAt;
-
-    private Instant lastAttemptedAt;
-
-    public void updateAttempts() {
-        attempts++;
-        lastAttemptedAt = Instant.now();
-    }
 }

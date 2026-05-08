@@ -15,4 +15,5 @@ jobs:
       - name: Push to Codeberg
         run : |
           git remote add codeberg https://${{ secrets.CODEBERG_TOKEN }}@codeberg.org/George-Markas/MusicBooru
-          git push --mirror codeberg
+          git push codeberg --all
+          git push codeberg --tags

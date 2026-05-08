@@ -1,6 +1,7 @@
 package com.example.musicbooru.track;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +27,13 @@ public class TrackController {
     @DeleteMapping
     public ResponseEntity<?> deleteTracks(@RequestBody DeleteTracksRequest request) {
         trackService.removeTracks(request.publicTrackIds());
+        return ResponseEntity.noContent().build();
+    }
+
+    @Profile("dev")
+    @DeleteMapping("/all")
+    public ResponseEntity<?> deleteAllTracks() {
+        trackService.removeAllTracks();
         return ResponseEntity.noContent().build();
     }
 }

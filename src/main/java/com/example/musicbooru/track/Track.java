@@ -24,6 +24,9 @@ public class Track {
     private String genre;
     private int duration; // In seconds
 
+    @Column(nullable = false)
+    private String mimeType;
+
     @Enumerated(EnumType.STRING)
     private TrackStatus status;
 }
