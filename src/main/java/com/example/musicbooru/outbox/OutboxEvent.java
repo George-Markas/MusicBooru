@@ -35,15 +35,8 @@ public class OutboxEvent {
     private OutboxStatus status;
 
     @Column(nullable = false)
-    private int attempts;
+    private int retries;
 
     @Column(nullable = false)
     private Instant createdAt;
-
-    private Instant lastAttemptedAt;
-
-    public void updateAttempts() {
-        attempts++;
-        lastAttemptedAt = Instant.now();
-    }
 }

@@ -8,11 +8,9 @@ import com.rabbitmq.client.Channel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.AmqpHeaders;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.handler.annotation.Header;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -22,20 +20,18 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Instant;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class OutboxService {
 
-    private static final int MAX_ATTEMPTS = 3;
-
     private final OutboxEventRepository outboxEventRepository;
     private final TrackRepository trackRepository;
     private final S3Client s3Client;
-    private final RabbitTemplate rabbitTemplate;
     private final TranscodingService transcodingService;
+
+    private static final int MAX_RETRIES = 3;
 
     @Value("${garage.bucket-artwork}")
     private String artworkBucket;
@@ -51,8 +47,16 @@ public class OutboxService {
         OutboxEvent event = outboxEventRepository.findById(message.outboxEventId())
                 .orElse(null);
 
-        if (event == null || event.getStatus() != OutboxStatus.PENDING) {
-            channel.basicAck(deliveryTag, false); // Already handled or gone
+        // Event gone
+        if (event == null) {
+            log.warn("Event '{}' not found", message.outboxEventId());
+            channel.basicNack(deliveryTag, false, false);
+            return;
+        }
+
+        // Event already handled
+        if (event.getStatus() != OutboxStatus.PENDING) {
+            channel.basicAck(deliveryTag, false); // Already handled
             return;
         }
 
@@ -65,32 +69,16 @@ public class OutboxService {
             log.info("Track '{}' added", event.getTrackPublicId());
         } catch (RuntimeException e) {
             log.error("Outbox processing failed for event '{}'", event.getId(), e);
-            event.updateAttempts();
+            event.setRetries(event.getRetries() + 1);
 
-            if (event.getAttempts() >= MAX_ATTEMPTS) {
+            if (event.getRetries() >= MAX_RETRIES) {
                 event.setStatus(OutboxStatus.FAILED);
                 markTrackFailed(event.getTrackId());
-                outboxEventRepository.save(event);
-                channel.basicNack(deliveryTag, false, false);
-                throw new GenericException("Could not process the uploaded content", e);
             }
-            outboxEventRepository.save(event);
-            channel.basicNack(deliveryTag, false, false);
-        }
-    }
 
-    // Republishes "stuck" events every 5 minutes. Events with a 'PENDING' status
-    // that are older than a minute are considered "stuck".
-    @Scheduled(fixedDelay = 300_000)
-    public void recoverStuck() {
-        Instant threshold = Instant.now().minusSeconds(60);
-        outboxEventRepository
-                .findByStatusAndCreatedAtBefore(OutboxStatus.PENDING, threshold)
-                .forEach(event -> rabbitTemplate.convertAndSend(
-                        RabbitmqConfig.EXCHANGE,
-                        RabbitmqConfig.ROUTING_KEY,
-                        new OutboxMessage(event.getId())
-                ));
+            outboxEventRepository.save(event);
+            channel.basicReject(deliveryTag, false);
+        }
     }
 
     private void uploadToS3(OutboxEvent event) {

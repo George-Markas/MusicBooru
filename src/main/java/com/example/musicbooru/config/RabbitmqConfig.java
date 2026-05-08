@@ -16,7 +16,7 @@ public class RabbitmqConfig {
     public static final String EXCHANGE = "outbox.exchange";
     public static final String QUEUE = "outbox.track.process";
     public static final String DLX = "outbox.exchange.dlx";
-    public static final String DLQ = "outbox.exchange.dlq";
+    public static final String DLQ = "outbox.track.process.dlq";
     public static final String ROUTING_KEY = "track.process";
 
     @Bean
@@ -37,7 +37,8 @@ public class RabbitmqConfig {
         return new DirectExchange(EXCHANGE);
     }
 
-    @Bean DirectExchange deadLetterExchange() {
+    @Bean
+    DirectExchange deadLetterExchange() {
         return new DirectExchange(DLX);
     }
 
@@ -49,7 +50,8 @@ public class RabbitmqConfig {
                 .with(ROUTING_KEY);
     }
 
-    @Bean Binding deadLetterQueueBinding() {
+    @Bean
+    Binding deadLetterQueueBinding() {
         return BindingBuilder
                 .bind(deadLetterQueue())
                 .to(deadLetterExchange())

@@ -116,7 +116,7 @@ public class TrackService {
                     .artworkPath(artworkPath)
                     .needsTranscoding(markedForTranscoding)
                     .status(OutboxStatus.PENDING)
-                    .attempts(0)
+                    .retries(0)
                     .createdAt(Instant.now())
                     .build();
 
