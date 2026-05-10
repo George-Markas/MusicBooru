@@ -1,6 +1,6 @@
 CREATE TABLE _user
 (
-    id       BIGINT GENERATED ALWAYS AS IDENTITY,
+    id       UUID,
     username VARCHAR(255) NOT NULL,
     password VARCHAR(255) NOT NULL,
     role     VARCHAR(5)   NOT NULL, -- 'USER', 'ADMIN,
