@@ -1,9 +1,10 @@
-package com.example.musicbooru.config;
+package com.example.musicbooru.init;
 
 import com.example.musicbooru.user.Role;
 import com.example.musicbooru.user.User;
 import com.example.musicbooru.user.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -11,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
+@Slf4j
 @RequiredArgsConstructor
 public class AppInitializer implements CommandLineRunner {
 
@@ -37,6 +39,7 @@ public class AppInitializer implements CommandLineRunner {
                     .build();
 
             userRepository.save(defaultAdminUser);
+            log.info("Created default admin user '{}'", defaultAdminUsername);
         }
     }
 }

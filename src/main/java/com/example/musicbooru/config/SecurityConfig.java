@@ -1,6 +1,6 @@
 package com.example.musicbooru.config;
 
-import com.example.musicbooru.security.CustomUserDetailsService;
+import com.example.musicbooru.user.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

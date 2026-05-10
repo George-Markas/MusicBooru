@@ -1,7 +1,5 @@
-package com.example.musicbooru.security;
+package com.example.musicbooru.user;
 
-import com.example.musicbooru.user.User;
-import com.example.musicbooru.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.security.core.userdetails.UserDetails;
