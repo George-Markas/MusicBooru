@@ -1,12 +1,15 @@
 package com.example.musicbooru.auth;
 
+import com.example.musicbooru.user.Role;
 import jakarta.validation.constraints.NotBlank;
 
-public record AuthRequest(
-        @NotBlank(message = "Username can not be empty")
+public record RegisterRequest(
+        @NotBlank(message = "Password can not be empty")
         String username,
 
         @NotBlank(message = "Password can not be empty")
-        String password
+        String password,
+
+        Role role
 ) {
 }
