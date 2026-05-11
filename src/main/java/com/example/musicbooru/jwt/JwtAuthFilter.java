@@ -7,7 +7,6 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,7 +20,6 @@ import java.util.Arrays;
 import java.util.Optional;
 
 @Component
-@Slf4j
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
 
@@ -53,10 +51,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private void authenticate(String token, HttpServletRequest request) {
         // Skip if already authenticated
-        if (SecurityContextHolder.getContext().getAuthentication() != null) {
-            log.debug("Already authenticated");
-            return;
-        }
+        if (SecurityContextHolder.getContext().getAuthentication() != null) return;
 
         try {
             UserDetails userDetails = userDetailsService.loadUserByUsername(jwtService.getUsernameFromToken(token));

@@ -8,7 +8,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 
-@Profile("dev")
+@Profile("insecure")
 @Configuration
 @EnableWebSecurity
 public class DevSecurityConfig {

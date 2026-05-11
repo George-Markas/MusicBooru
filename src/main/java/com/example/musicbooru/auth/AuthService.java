@@ -6,6 +6,7 @@ import com.example.musicbooru.user.CustomUserDetailsService;
 import com.example.musicbooru.user.User;
 import com.example.musicbooru.user.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class AuthService {
 
@@ -48,6 +50,7 @@ public class AuthService {
 
         userRepository.save(user);
         String token = jwtService.generateToken(user);
+        log.info("Registered user '{}' as '{}'",  request.username(), request.role());
 
         return new AuthResponse(
                 bakeCookie(token),

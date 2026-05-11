@@ -2,10 +2,12 @@ package com.example.musicbooru.config;
 
 import com.example.musicbooru.jwt.JwtAuthFilter;
 import com.example.musicbooru.user.CustomUserDetailsService;
+import com.example.musicbooru.user.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -18,7 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-@Profile("!dev")
+@Profile("!insecure")
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -31,9 +33,11 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/auth/**").permitAll()
-                        .anyRequest()
-                        .permitAll()
+                        .requestMatchers("/auth/register").hasAuthority(Role.ADMIN.name())
+                        .requestMatchers("/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/track").hasAuthority(Role.ADMIN.name())
+                        .requestMatchers(HttpMethod.DELETE, "/track/*").hasAuthority(Role.ADMIN.name())
+                        .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationManager(authenticationManager())
