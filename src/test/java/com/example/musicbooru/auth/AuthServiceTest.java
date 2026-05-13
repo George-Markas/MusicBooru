@@ -49,14 +49,12 @@ public class AuthServiceTest {
     private RegisterRequest registerRequest;
     private AuthRequest authRequest;
 
-    private final String username = "KinkyMango92";
-    private final String password = "supersecretpassword";
+    private final String username = "TestUser";
+    private final String password = "plain_password";
     private final Role role = Role.USER;
 
-    private final String encodedPassword = "$2a$10$c1oP/MpcptgceYVcxkFMxOZYzuvuix9WhZMiffX70nQYXdgCow5La";
-    private final String token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJLaW5reU1hbmdvOTIiLCJhdXRob3JpdG" +
-                                 "llcyI6W3siYXV0aG9yaXR5IjoiVVNFUiJ9XSwiaWF0IjoxNzc4NTk5NDc2LCJle" +
-                                 "HAiOjE3Nzg2ODU4NzZ9._iz4l1k8wGrPTLfAGWxbO8mZKg8IJ0OPH7SBDLBae5s";
+    private final String encodedPassword = "encoded_password";
+    private final String token = "jwt_token";
 
     @BeforeEach
     void setUp() {
@@ -67,7 +65,7 @@ public class AuthServiceTest {
     // --- register ---
 
     @Test
-    void registerUser_savesUserAndReturnsOk_whenUsernameIsNotTaken() {
+    void registerUser_savesUserAndReturnsSuccessResponse_whenUsernameIsNotTaken() {
         when(userRepository.existsByUsername(username)).thenReturn(false);
         when(passwordEncoder.encode(password)).thenReturn(encodedPassword);
         when(jwtService.generateToken(any(User.class))).thenReturn(token);
@@ -93,7 +91,7 @@ public class AuthServiceTest {
     }
 
     @Test
-    void register_returnsConflict_whenUsernameIsTaken() {
+    void register_returnsFailResponse_whenUsernameIsTaken() {
         when(userRepository.existsByUsername(username)).thenReturn(true);
 
         AuthResponse result = authService.register(registerRequest);
@@ -120,9 +118,9 @@ public class AuthServiceTest {
     // --- logIn ---
 
     @Test
-    void logIn_returnsOk_whenCredentialsAreValid() {
+    void logIn_returnsSuccessResponse_whenCredentialsAreValid() {
         User user = User.builder()
-                .id(UUID.fromString("e9fed7e7-1a14-4f47-9a38-fcad43c00876"))
+                .id(UUID.fromString("00000000-0000-0000-0000-000000000001"))
                 .username(username)
                 .password(password)
                 .role(role)
@@ -153,7 +151,7 @@ public class AuthServiceTest {
     @Test
     void logIn_passesCorrectCredentialsToAuthenticationManager() {
         User user = User.builder()
-                .id(UUID.fromString("e9fed7e7-1a14-4f47-9a38-fcad43c00876"))
+                .id(UUID.fromString("00000000-0000-0000-0000-000000000001"))
                 .username(username)
                 .password(password)
                 .role(role)
@@ -175,7 +173,7 @@ public class AuthServiceTest {
     // --- logOut ---
 
     @Test
-    void logOut_returnsNoContentAndCrumblesCookie() {
+    void logOut_returnsEmptyResponseAndCrumblesCookie() {
         AuthResponse result = authService.logOut();
 
         assertThat(result.cookie().contains("jwt=;"));
