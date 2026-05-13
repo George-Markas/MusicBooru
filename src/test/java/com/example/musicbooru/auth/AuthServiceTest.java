@@ -1,6 +1,8 @@
 package com.example.musicbooru.auth;
 
+import com.example.musicbooru.exception.InvalidCredentialsException;
 import com.example.musicbooru.jwt.JwtService;
+import com.example.musicbooru.user.CustomUserDetailsService;
 import com.example.musicbooru.user.Role;
 import com.example.musicbooru.user.User;
 import com.example.musicbooru.user.UserRepository;
@@ -11,9 +13,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.UUID;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
@@ -24,15 +32,22 @@ public class AuthServiceTest {
     UserRepository userRepository;
 
     @Mock
-    PasswordEncoder passwordEncoder;
+    CustomUserDetailsService userDetailsService;
 
     @Mock
     JwtService jwtService;
+
+    @Mock
+    AuthenticationManager authenticationManager;
+
+    @Mock
+    PasswordEncoder passwordEncoder;
 
     @InjectMocks
     private AuthService authService;
 
     private RegisterRequest registerRequest;
+    private AuthRequest authRequest;
 
     private final String username = "KinkyMango92";
     private final String password = "supersecretpassword";
@@ -46,6 +61,7 @@ public class AuthServiceTest {
     @BeforeEach
     void setUp() {
         registerRequest = new RegisterRequest(username, password, role);
+        authRequest = new AuthRequest(username, password);
     }
 
     // --- register ---
@@ -102,7 +118,68 @@ public class AuthServiceTest {
     }
 
     // --- logIn ---
+
     @Test
     void logIn_returnsOk_whenCredentialsAreValid() {
+        User user = User.builder()
+                .id(UUID.fromString("e9fed7e7-1a14-4f47-9a38-fcad43c00876"))
+                .username(username)
+                .password(password)
+                .role(role)
+                .build();
+
+        when(userDetailsService.loadUserByUsername(username)).thenReturn(user);
+        when(jwtService.generateToken(user)).thenReturn(token);
+
+        AuthResponse result = authService.logIn(authRequest);
+
+        assertThat(result.cookie().contains("jwt=" + token));
+        assertThat(result.status()).isEqualTo(HttpStatus.OK);
+        assertThat(result.message()).isEqualTo("Login successful");
+    }
+
+    @Test
+    void logIn_throwsInvalidCredentialsException_whenCredentialsAreInvalid() {
+        doThrow(new BadCredentialsException("Invalid credentials"))
+                .when(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
+
+        assertThatThrownBy(() -> authService.logIn(authRequest))
+                .isInstanceOf(InvalidCredentialsException.class)
+                .hasMessageContaining("Incorrect username or password");
+
+        verifyNoInteractions(userDetailsService);
+    }
+
+    @Test
+    void logIn_passesCorrectCredentialsToAuthenticationManager() {
+        User user = User.builder()
+                .id(UUID.fromString("e9fed7e7-1a14-4f47-9a38-fcad43c00876"))
+                .username(username)
+                .password(password)
+                .role(role)
+                .build();
+
+        when(userDetailsService.loadUserByUsername(username)).thenReturn(user);
+        when(jwtService.generateToken(user)).thenReturn(token);
+
+        authService.logIn(authRequest);
+
+        verify(authenticationManager).authenticate(
+                argThat(tok -> tok instanceof UsernamePasswordAuthenticationToken t &&
+                        username.equals(t.getPrincipal()) &&
+                        password.equals(t.getCredentials())
+                )
+        );
+    }
+
+    // --- logOut ---
+
+    @Test
+    void logOut_returnsNoContentAndCrumblesCookie() {
+        AuthResponse result = authService.logOut();
+
+        assertThat(result.cookie().contains("jwt=;"));
+        assertThat(result.status()).isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(result.message()).isNullOrEmpty();
     }
 }
