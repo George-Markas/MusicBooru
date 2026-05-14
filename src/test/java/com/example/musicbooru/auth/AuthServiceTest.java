@@ -50,11 +50,11 @@ public class AuthServiceTest {
     private AuthRequest authRequest;
 
     private final String username = "TestUser";
-    private final String password = "plain_password";
+    private final String password = "plain-password";
     private final Role role = Role.USER;
 
-    private final String encodedPassword = "encoded_password";
-    private final String token = "jwt_token";
+    private final String encodedPassword = "encoded-password";
+    private final String token = "jwt-token";
 
     @BeforeEach
     void setUp() {

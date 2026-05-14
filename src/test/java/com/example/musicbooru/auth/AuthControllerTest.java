@@ -54,7 +54,7 @@ public class AuthControllerTest {
     private RegisterRequest registerRequest;
     private AuthRequest authRequest;
 
-    private final String token = "jwt_token";
+    private final String token = "jwt-token";
 
     @BeforeEach
     void setUp() throws Exception {
@@ -68,8 +68,8 @@ public class AuthControllerTest {
             return null;
         }).when(jwtAuthFilter).doFilter(any(), any(), any());
 
-        registerRequest = new RegisterRequest("TestUser", "plain_password", Role.USER);
-        authRequest = new AuthRequest("TestUser", "plain_password");
+        registerRequest = new RegisterRequest("TestUser", "plain-password", Role.USER);
+        authRequest = new AuthRequest("TestUser", "plain-password");
     }
 
     // --- POST /auth/register ---
@@ -192,5 +192,4 @@ public class AuthControllerTest {
         mockMvc.perform(post("/auth/logout"))
                 .andExpect(status().isForbidden());
     }
-
 }

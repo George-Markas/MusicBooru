@@ -16,7 +16,7 @@ public class CleanupService {
 
     @Scheduled(cron = "0 0 0 */7 * *")
     @Transactional
-    public void cleanup() {
+    public void cleanUp() {
         outboxEventRepository.deleteByStatus(OutboxStatus.DONE);
         outboxEventRepository.deleteByStatus(OutboxStatus.FAILED);
         trackRepository.deleteByStatus(TrackStatus.FAILED);
