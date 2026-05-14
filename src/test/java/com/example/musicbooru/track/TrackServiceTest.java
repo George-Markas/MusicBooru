@@ -195,7 +195,7 @@ public class TrackServiceTest {
     }
 
     @Test
-    void removeTracks_throws_whenTrackIsStillPending() {
+    void removeTracks_throwsGenericException_whenTrackIsStillPending() {
         Track track = Track.builder()
                 .publicId("pending-id")
                 .status(TrackStatus.PENDING)

@@ -75,9 +75,8 @@ public class AuthControllerTest {
     // --- POST /auth/register ---
 
     @Test
-    @WithMockUser(authorities = {"ADMIN"})
-    void register_returnsOk_whenUserRegistrationSucceeds() throws Exception {
-
+    @WithMockUser(authorities = "ADMIN")
+    void register_returnsOk() throws Exception {
 
         when(authService.register(any(RegisterRequest.class)))
                 .thenReturn(
@@ -97,9 +96,8 @@ public class AuthControllerTest {
     }
 
     @Test
-    @WithMockUser(authorities = {"ADMIN"})
+    @WithMockUser(authorities = "ADMIN")
     void register_returnsConflict_whenUsernameIsTaken() throws Exception {
-
 
         when(authService.register(any(RegisterRequest.class)))
                 .thenReturn(
@@ -120,9 +118,8 @@ public class AuthControllerTest {
     }
 
     @Test
-    @WithMockUser(authorities = {"USER"})
+    @WithMockUser(authorities = "USER")
     void register_returnsForbidden_whenUserIsNotAdmin() throws Exception {
-
 
         mockMvc.perform(post("/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -170,7 +167,7 @@ public class AuthControllerTest {
     // --- POST /auth/logout ---
 
     @Test
-    @WithMockUser(authorities = {"USER"})
+    @WithMockUser(authorities = "USER")
     void logOut_returnsNoContent_whenUserIsAuthenticated() throws Exception {
         when(authService.logOut())
                 .thenReturn(
