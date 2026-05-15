@@ -48,7 +48,7 @@ public class TrackControllerTest {
     @MockitoBean
     private JwtAuthFilter jwtAuthFilter;
 
-    private final String publicId = "IG1MNki";
+    private String trackPublicId;
 
     @BeforeEach
     void setUp() throws ServletException, IOException {
@@ -61,6 +61,8 @@ public class TrackControllerTest {
 
             return null;
         }).when(jwtAuthFilter).doFilter(any(), any(), any());
+
+        trackPublicId = "IG1MNki";
     }
 
     // --- POST uploadTracks ---
@@ -68,14 +70,14 @@ public class TrackControllerTest {
     @Test
     @WithMockUser(authorities = "ADMIN")
     void uploadTracks_returnsCreated() throws Exception {
-        Track track = Track.builder().publicId(publicId).build();
+        Track track = Track.builder().publicId(trackPublicId).build();
         when(trackService.addTracks(anyList())).thenReturn(List.of(track));
 
         mockMvc.perform(multipart("/track")
                         .file("file", "audio".getBytes())
                 )
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$[0].publicId").value(publicId));
+                .andExpect(jsonPath("$[0].publicId").value(trackPublicId));
     }
 
     @Test
@@ -94,7 +96,7 @@ public class TrackControllerTest {
     @Test
     @WithMockUser(authorities = "ADMIN")
     void deleteTracks_returnsNoContent() throws Exception {
-        DeleteTracksRequest request = new DeleteTracksRequest(List.of(publicId));
+        DeleteTracksRequest request = new DeleteTracksRequest(List.of(trackPublicId));
 
         mockMvc.perform(delete("/track")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -102,13 +104,13 @@ public class TrackControllerTest {
                 )
                 .andExpect(status().isNoContent());
 
-        verify(trackService).removeTracks(List.of(publicId));
+        verify(trackService).removeTracks(List.of(trackPublicId));
     }
 
     @Test
     @WithMockUser(authorities = "ADMIN")
     void deleteTracks_returnsNotFound_whenTrackIsNotFound() throws Exception {
-        DeleteTracksRequest request = new DeleteTracksRequest(List.of(publicId));
+        DeleteTracksRequest request = new DeleteTracksRequest(List.of(trackPublicId));
 
         mockMvc.perform(delete("/track")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -116,13 +118,13 @@ public class TrackControllerTest {
                 )
                 .andExpect(status().isNoContent());
 
-        verify(trackService).removeTracks(List.of(publicId));
+        verify(trackService).removeTracks(List.of(trackPublicId));
     }
 
     @Test
     @WithMockUser(authorities = "USER")
     void deleteTracks_returnsForbidden_whenUserIsNotAdmin() throws Exception {
-        DeleteTracksRequest request = new DeleteTracksRequest(List.of(publicId));
+        DeleteTracksRequest request = new DeleteTracksRequest(List.of(trackPublicId));
 
         mockMvc.perform(delete("/track")
                         .contentType(MediaType.APPLICATION_JSON)

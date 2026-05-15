@@ -51,10 +51,10 @@ public class AuthControllerTest {
     @MockitoBean
     private AuthService authService;
 
+    private String token;
+
     private RegisterRequest registerRequest;
     private AuthRequest authRequest;
-
-    private final String token = "jwt-token";
 
     @BeforeEach
     void setUp() throws Exception {
@@ -68,6 +68,7 @@ public class AuthControllerTest {
             return null;
         }).when(jwtAuthFilter).doFilter(any(), any(), any());
 
+        token = "jwt-token";
         registerRequest = new RegisterRequest("TestUser", "plain-password", Role.USER);
         authRequest = new AuthRequest("TestUser", "plain-password");
     }
@@ -138,7 +139,7 @@ public class AuthControllerTest {
                         new AuthResponse(
                                 "jwt=" + token,
                                 HttpStatus.OK,
-                                "Login successful"
+                                "Logged in"
                         )
                 );
 
@@ -148,7 +149,7 @@ public class AuthControllerTest {
                 )
                 .andExpect(header().string(HttpHeaders.SET_COOKIE, "jwt=" + token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Login successful"));
+                .andExpect(jsonPath("$.message").value("Logged in"));
     }
 
     @Test

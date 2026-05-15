@@ -46,18 +46,26 @@ public class AuthServiceTest {
     @InjectMocks
     private AuthService authService;
 
+    private String username;
+    private String password;
+    private Role role;
+
+    private String encodedPassword;
+    private String token;
+
     private RegisterRequest registerRequest;
     private AuthRequest authRequest;
 
-    private final String username = "TestUser";
-    private final String password = "plain-password";
-    private final Role role = Role.USER;
-
-    private final String encodedPassword = "encoded-password";
-    private final String token = "jwt-token";
 
     @BeforeEach
     void setUp() {
+        username = "TestUser";
+        password = "plain-password";
+        role = Role.USER;
+
+        encodedPassword = "encoded-password";
+        token = "jwt-token";
+
         registerRequest = new RegisterRequest(username, password, role);
         authRequest = new AuthRequest(username, password);
     }

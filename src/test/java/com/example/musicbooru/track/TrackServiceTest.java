@@ -25,7 +25,6 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
@@ -52,19 +51,19 @@ public class TrackServiceTest {
     @InjectMocks
     private TrackService trackService;
 
-    private final String publicId = "IG1MNki";
+    private String trackPublicId;
 
     @BeforeEach
     void setUp() {
         ReflectionTestUtils.setField(trackService, "artworkBucket", "test-bucket-artwork");
         ReflectionTestUtils.setField(trackService, "libraryBucket", "test-bucket-library");
+        trackPublicId = "IG1MNki";
     }
 
     // --- addTracks ---
 
     @Test
-    void addTracks_savesTrackAndOutboxEvent() throws Exception {
-        Path userUpload = Files.createTempFile(null, ".flac");
+    void addTracks_savesTrackAndOutboxEvent() {
         MediaType mediaType = new MediaType("audio/flac", ".flac");
 
         //noinspection unused
@@ -84,7 +83,7 @@ public class TrackServiceTest {
                         })
         ) {
             contentUtils.when(() -> ContentUtils.detectMediaType(multipartFile)).thenReturn(mediaType);
-            idGen.when(() -> PublicIdGenerator.generate(anyInt(), anyInt(), any())).thenReturn(publicId);
+            idGen.when(() -> PublicIdGenerator.generate(anyInt(), anyInt(), any())).thenReturn(trackPublicId);
 
             when(trackRepository.save(any(Track.class))).thenAnswer(invocation -> {
                 Track track = invocation.getArgument(0);
@@ -97,13 +96,13 @@ public class TrackServiceTest {
 
             // Track saved
             verify(trackRepository).save(argThat(track ->
-                    publicId.equals(track.getPublicId()) &&
+                    trackPublicId.equals(track.getPublicId()) &&
                             TrackStatus.PENDING.equals(track.getStatus())
             ));
 
             // OutboxEvent saved
             verify(outboxEventRepository).save(argThat(event ->
-                    event.getTrackPublicId().equals(publicId) &&
+                    event.getTrackPublicId().equals(trackPublicId) &&
                             event.getStatus() == OutboxStatus.PENDING &&
                             !event.isNeedsTranscoding()
             ));
@@ -112,9 +111,7 @@ public class TrackServiceTest {
             txManager.verify(() -> TransactionSynchronizationManager.registerSynchronization(any()));
 
             assertEquals(1, result.size());
-            assertEquals(publicId, result.getFirst().getPublicId());
-        } finally {
-            Files.deleteIfExists(userUpload);
+            assertEquals(trackPublicId, result.getFirst().getPublicId());
         }
     }
 
@@ -132,7 +129,7 @@ public class TrackServiceTest {
                                 when(mock.extractArtwork()).thenReturn(Optional.empty()))
         ) {
             contentUtils.when(() -> ContentUtils.detectMediaType(multipartFile)).thenReturn(mediaType);
-            idGen.when(() -> PublicIdGenerator.generate(anyInt(), anyInt(), any())).thenReturn(publicId);
+            idGen.when(() -> PublicIdGenerator.generate(anyInt(), anyInt(), any())).thenReturn(trackPublicId);
             when(trackRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
             trackService.addTracks(List.of(multipartFile));
@@ -162,22 +159,22 @@ public class TrackServiceTest {
     @Test
     void removeTracks_deletesS3ObjectsAndEntities() {
         Track track = Track.builder()
-                .publicId(publicId)
+                .publicId(trackPublicId)
                 .status(TrackStatus.READY)
                 .build();
 
         ReflectionTestUtils.setField(track, "id", 1L);
 
-        when(trackRepository.findByPublicId(publicId)).thenReturn(Optional.of(track));
+        when(trackRepository.findByPublicId(trackPublicId)).thenReturn(Optional.of(track));
 
-        trackService.removeTracks(List.of(publicId));
+        trackService.removeTracks(List.of(trackPublicId));
 
         verify(s3Client).deleteObject(argThat((DeleteObjectRequest request) ->
-                request.bucket().equals("test-bucket-artwork") && request.key().equals(publicId)
+                request.bucket().equals("test-bucket-artwork") && request.key().equals(trackPublicId)
         ));
 
         verify(s3Client).deleteObject(argThat((DeleteObjectRequest request) ->
-                request.bucket().equals("test-bucket-library") && request.key().equals(publicId)
+                request.bucket().equals("test-bucket-library") && request.key().equals(trackPublicId)
         ));
 
         verify(outboxEventRepository).deleteByTrackId(1L);

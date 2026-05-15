@@ -54,7 +54,11 @@ public class OutboxServiceTest {
 
     @BeforeEach
     void setUp() {
-        ReflectionTestUtils.setField(outboxService, "transactionTemplate", new TransactionTemplate(transactionManager));
+        ReflectionTestUtils.setField(
+                outboxService,
+                "transactionTemplate",
+                new TransactionTemplate(transactionManager)
+        );
         ReflectionTestUtils.setField(outboxService, "artworkBucket", "test-bucket-artwork");
         ReflectionTestUtils.setField(outboxService, "libraryBucket", "test-bucket-library");
     }
