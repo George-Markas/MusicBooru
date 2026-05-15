@@ -76,7 +76,7 @@ public class AuthControllerTest {
 
     @Test
     @WithMockUser(authorities = "ADMIN")
-    void register_returnsOk() throws Exception {
+    void register_returnsOk_whenRegistrationSucceeds() throws Exception {
 
         when(authService.register(any(RegisterRequest.class)))
                 .thenReturn(
