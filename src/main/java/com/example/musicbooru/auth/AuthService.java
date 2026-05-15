@@ -74,7 +74,7 @@ public class AuthService {
             return new AuthResponse(
                     bakeCookie(token),
                     HttpStatus.OK,
-                    "Login successful"
+                    "Logged in"
             );
         } catch (BadCredentialsException e) {
             throw new InvalidCredentialsException("Incorrect username or password");

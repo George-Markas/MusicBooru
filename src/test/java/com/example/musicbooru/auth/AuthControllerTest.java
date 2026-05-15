@@ -97,7 +97,7 @@ public class AuthControllerTest {
 
     @Test
     @WithMockUser(authorities = "ADMIN")
-    void register_returnsConflict_whenUsernameIsTaken() throws Exception {
+    void register_returnsConflict_whenUsernameTaken() throws Exception {
 
         when(authService.register(any(RegisterRequest.class)))
                 .thenReturn(
@@ -119,7 +119,7 @@ public class AuthControllerTest {
 
     @Test
     @WithMockUser(authorities = "USER")
-    void register_returnsForbidden_whenUserIsNotAdmin() throws Exception {
+    void register_returnsForbidden_whenUserNotAdmin() throws Exception {
 
         mockMvc.perform(post("/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -131,7 +131,7 @@ public class AuthControllerTest {
     // --- POST /auth/login ---
 
     @Test
-    void logIn_returnsOk_whenCredentialsAreValid() throws Exception {
+    void logIn_returnsOk_whenCredentialsValid() throws Exception {
 
         when(authService.logIn(any(AuthRequest.class)))
                 .thenReturn(
@@ -152,7 +152,7 @@ public class AuthControllerTest {
     }
 
     @Test
-    void logIn_returnsUnauthorized_whenCredentialsAreInvalid() throws Exception {
+    void logIn_returnsUnauthorized_whenCredentialsInvalid() throws Exception {
         when(authService.logIn(any(AuthRequest.class)))
                 .thenThrow(new InvalidCredentialsException("Incorrect username or password"));
 
@@ -168,7 +168,7 @@ public class AuthControllerTest {
 
     @Test
     @WithMockUser(authorities = "USER")
-    void logOut_returnsNoContent_whenUserIsAuthenticated() throws Exception {
+    void logOut_returnsNoContent_whenUserAuthenticated() throws Exception {
         when(authService.logOut())
                 .thenReturn(
                         new AuthResponse(
@@ -185,7 +185,7 @@ public class AuthControllerTest {
     }
 
     @Test
-    void logOut_returnsForbidden_whenUserIsNotAuthenticated() throws Exception {
+    void logOut_returnsForbidden_whenUserNotAuthenticated() throws Exception {
         mockMvc.perform(post("/auth/logout"))
                 .andExpect(status().isForbidden());
     }

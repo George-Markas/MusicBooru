@@ -65,7 +65,7 @@ public class AuthServiceTest {
     // --- register ---
 
     @Test
-    void registerUser_savesUserAndReturnsSuccessResponse_whenUsernameIsNotTaken() {
+    void registerUser_savesUserAndReturnsSuccessResponse_whenUsernameNotTaken() {
         when(userRepository.existsByUsername(username)).thenReturn(false);
         when(passwordEncoder.encode(password)).thenReturn(encodedPassword);
         when(jwtService.generateToken(any(User.class))).thenReturn(token);
@@ -91,7 +91,7 @@ public class AuthServiceTest {
     }
 
     @Test
-    void register_returnsFailResponse_whenUsernameIsTaken() {
+    void register_returnsFailResponse_whenUsernameTaken() {
         when(userRepository.existsByUsername(username)).thenReturn(true);
 
         AuthResponse result = authService.register(registerRequest);
@@ -118,7 +118,7 @@ public class AuthServiceTest {
     // --- logIn ---
 
     @Test
-    void logIn_returnsSuccessResponse_whenCredentialsAreValid() {
+    void logIn_returnsSuccessResponse_whenCredentialsValid() {
         User user = User.builder()
                 .id(UUID.fromString("00000000-0000-0000-0000-000000000001"))
                 .username(username)
@@ -133,11 +133,11 @@ public class AuthServiceTest {
 
         assertThat(result.cookie().contains("jwt=" + token));
         assertThat(result.status()).isEqualTo(HttpStatus.OK);
-        assertThat(result.message()).isEqualTo("Login successful");
+        assertThat(result.message()).isEqualTo("Logged in");
     }
 
     @Test
-    void logIn_throwsInvalidCredentialsException_whenCredentialsAreInvalid() {
+    void logIn_throwsInvalidCredentialsException_whenCredentialsInvalid() {
         doThrow(new BadCredentialsException("Invalid credentials"))
                 .when(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
 

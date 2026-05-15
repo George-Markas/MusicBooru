@@ -12,7 +12,7 @@ import org.springframework.amqp.support.AmqpHeaders;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
@@ -29,6 +29,7 @@ public class OutboxService {
     private final OutboxEventRepository outboxEventRepository;
     private final TrackRepository trackRepository;
     private final S3Client s3Client;
+    private final TransactionTemplate transactionTemplate;
     private final TranscodingService transcodingService;
 
     private static final int MAX_RETRIES = 3;
@@ -40,7 +41,6 @@ public class OutboxService {
     private String libraryBucket;
 
     @RabbitListener(queues = RabbitmqConfig.QUEUE)
-    @Transactional
     public void processEvent(OutboxMessage message, Channel channel,
                              @Header(AmqpHeaders.DELIVERY_TAG) Long deliveryTag) throws IOException {
 
@@ -62,22 +62,33 @@ public class OutboxService {
 
         try {
             uploadToS3(event);
-            markTrackReady(event.getTrackId());
-            event.setStatus(OutboxStatus.DONE);
-            outboxEventRepository.save(event);
+
+            transactionTemplate.executeWithoutResult(status -> {
+                markTrackReady(event.getTrackId());
+                event.setStatus(OutboxStatus.DONE);
+                outboxEventRepository.save(event);
+            });
+
             channel.basicAck(deliveryTag, false);
             log.info("Track '{}' added", event.getTrackPublicId());
+
         } catch (RuntimeException e) {
             log.error("Outbox processing failed for event '{}'", event.getId(), e);
             event.setRetries(event.getRetries() + 1);
 
             if (event.getRetries() >= MAX_RETRIES) {
-                event.setStatus(OutboxStatus.FAILED);
-                markTrackFailed(event.getTrackId());
+                transactionTemplate.executeWithoutResult(status -> {
+                    event.setStatus(OutboxStatus.FAILED);
+                    markTrackFailed(event.getTrackId());
+                    outboxEventRepository.save(event);
+                });
+                channel.basicNack(deliveryTag, false, false);
+            } else {
+                transactionTemplate.executeWithoutResult(status ->
+                        outboxEventRepository.save(event)
+                );
+                channel.basicNack(deliveryTag, false, true);
             }
-
-            outboxEventRepository.save(event);
-            channel.basicReject(deliveryTag, false);
         }
     }
 

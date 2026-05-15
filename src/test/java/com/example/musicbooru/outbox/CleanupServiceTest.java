@@ -43,7 +43,7 @@ public class CleanupServiceTest {
     // --- cleanUpStale ---
 
     @Test
-    void cleanUpStale_deletesStaleOutboxEventsAndCorrespondingTracks() {
+    void cleanUpStale_deletesStaleOutboxEventsAndTracks() {
         OutboxEvent stale1 = OutboxEvent.builder().trackId(1L).build();
         OutboxEvent stale2 = OutboxEvent.builder().trackId(2L).build();
 
@@ -59,7 +59,7 @@ public class CleanupServiceTest {
     }
 
     @Test
-    void cleanUpStale_deletesPendingOutboxEventsThatAreOlderThan15Minutes() {
+    void cleanUpStale_deletesPendingOutboxEventsOlderThan15Minutes() {
         Instant before = Instant.now();
 
         when(outboxEventRepository.findByStatusAndCreatedAtBefore(any(), any()))
