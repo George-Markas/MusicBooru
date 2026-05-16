@@ -56,7 +56,7 @@ public class OutboxService {
 
         // Event already handled
         if (event.getStatus() != OutboxStatus.PENDING) {
-            channel.basicAck(deliveryTag, false); // Already handled
+            channel.basicAck(deliveryTag, false);
             return;
         }
 
