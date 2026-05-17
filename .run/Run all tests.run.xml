@@ -3,6 +3,8 @@
     <module name="MusicBooru" />
     <projectPathOnTarget name="projectPathOnTarget" value="{exitCode=0, timeout=false, cancelled=false, stdout=/tmp/tmp.0Ierw0omKs&#13; , stderr=}/MusicBooru" />
     <target name="@@@LOCAL@@@" />
+    <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+    <option name="ALTERNATIVE_JRE_PATH" value="21" />
     <option name="PACKAGE_NAME" value="com.example.musicbooru" />
     <option name="MAIN_CLASS_NAME" value="" />
     <option name="METHOD_NAME" value="" />
