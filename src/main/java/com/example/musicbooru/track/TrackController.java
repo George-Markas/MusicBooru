@@ -19,9 +19,7 @@ public class TrackController {
     @PostMapping
     public ResponseEntity<List<Track>> uploadTracks(@RequestParam("file") List<MultipartFile> files) {
         List<Track> tracks = trackService.addTracks(files);
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(tracks);
+        return ResponseEntity.status(HttpStatus.CREATED).body(tracks);
     }
 
     @DeleteMapping

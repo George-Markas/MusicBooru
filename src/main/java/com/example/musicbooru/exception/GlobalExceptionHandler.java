@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
@@ -22,9 +23,7 @@ public class GlobalExceptionHandler {
                 request.getRequestURI()
         );
 
-        return ResponseEntity
-                .status(e.getStatus())
-                .body(response);
+        return ResponseEntity.status(e.getStatus()).body(response);
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
@@ -34,14 +33,27 @@ public class GlobalExceptionHandler {
         log.warn("Resource not found: {} with ID '{}'", e.getResourceType(), e.getResourceId(), e);
 
         ErrorResponse response = new ErrorResponse(
-                HttpStatus.NOT_FOUND,
+                e.getStatus(),
                 e.getMessage(),
                 request.getRequestURI()
         );
 
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(response);
+        return ResponseEntity.status(e.getStatus()).body(response);
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidCredentialsException(InvalidCredentialsException e,
+                                                                           HttpServletRequest request) {
+
+        log.info("Invalid credentials: {}", e.getMessage(), e);
+
+        ErrorResponse response = new ErrorResponse(
+                e.getStatus(),
+                e.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(e.getStatus()).body(response);
     }
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
@@ -56,9 +68,22 @@ public class GlobalExceptionHandler {
                 request.getRequestURI()
         );
 
-        return ResponseEntity
-                .status(HttpStatus.CONTENT_TOO_LARGE)
-                .body(response);
+        return ResponseEntity.status(HttpStatus.CONTENT_TOO_LARGE).body(response);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e,
+                                                                               HttpServletRequest request) {
+
+        log.warn("Argument validation failed: {}", e.getMessage(), e);
+
+        ErrorResponse response = new ErrorResponse(
+                HttpStatus.BAD_REQUEST,
+                "Invalid argument",
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     @ExceptionHandler(Exception.class)
@@ -71,8 +96,6 @@ public class GlobalExceptionHandler {
                 request.getRequestURI()
         );
 
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(response);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 }

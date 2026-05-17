@@ -82,7 +82,8 @@ public class MetadataUtils {
     }
 
     public String getYear() {
-        return getField(FieldKey.YEAR);
+        String year = getField(FieldKey.YEAR);
+        return year.substring(0, Math.min(year.length(), 10));
     }
 
     public String getGenre() {
