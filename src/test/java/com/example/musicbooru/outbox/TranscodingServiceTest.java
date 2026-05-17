@@ -26,16 +26,25 @@ public class TranscodingServiceTest {
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    private void writeFakeFFmpeg(int exitCode) throws IOException {
-        Path fakeFFmpeg = tempDir.resolve("ffmpeg");
-        Files.writeString(fakeFFmpeg, "#!/bin/sh\nexit " + exitCode + "\n");
-        fakeFFmpeg.toFile().setExecutable(true);
+    private void initFakeFFmpeg(int exitCode) throws IOException {
+        boolean isWindows = System.getProperty("os.name").toLowerCase().contains("win");
+        Path fakeFFmpeg;
+
+        if (isWindows) {
+            fakeFFmpeg = tempDir.resolve("ffmpeg.cmd");
+            Files.writeString(fakeFFmpeg, "@echo off\nexit /b " + exitCode + "\r\n");
+        } else {
+            fakeFFmpeg = tempDir.resolve("ffmpeg");
+            Files.writeString(fakeFFmpeg, "#!/bin/sh\nexit " + exitCode + "\n");
+            fakeFFmpeg.toFile().setExecutable(true);
+        }
+
         ReflectionTestUtils.setField(transcodingService, "ffmpegPath", fakeFFmpeg.toString());
     }
 
     @Test
     void transcode_returnsOutputFile_onSuccess() throws IOException, InterruptedException {
-        writeFakeFFmpeg(0);
+        initFakeFFmpeg(0);
         Path inputFile = Files.createTempFile(tempDir, null, ".wav");
 
         Path result = transcodingService.transcode(inputFile);
@@ -47,7 +56,7 @@ public class TranscodingServiceTest {
 
     @Test
     void transcode_throwsIOException_whenFFmpegFails() throws IOException {
-        writeFakeFFmpeg(1);
+        initFakeFFmpeg(1);
         Path inputFile = Files.createTempFile(tempDir, null, ".wav");
 
         assertThrows(IOException.class, () -> transcodingService.transcode(inputFile));
@@ -55,7 +64,7 @@ public class TranscodingServiceTest {
 
     @Test
     void transcode_deletesOutputFile_whenFFmpegFails() throws IOException {
-        writeFakeFFmpeg(1);
+        initFakeFFmpeg(1);
         Path inputFile = Files.createTempFile(tempDir, null, ".wav");
 
         Set<Path> before;
@@ -74,7 +83,7 @@ public class TranscodingServiceTest {
 
     @Test
     void transcode_usesConfiguredFFmpegPath() throws IOException, InterruptedException {
-        writeFakeFFmpeg(0);
+        initFakeFFmpeg(0);
         Path inputFile = Files.createTempFile(tempDir, null, ".wav");
 
         Path result = transcodingService.transcode(inputFile);
